@@ -16,7 +16,7 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static void Send(this SynchronizationContext @this, Action action)
         {
-            @this.Send(state => ((Action) state)(), action);
+            @this.Send(state => ((Action)state)(), action);
         }
 
         /// <summary>
@@ -27,8 +27,8 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static T Send<T>(this SynchronizationContext @this, Func<T> action)
         {
-            var result = default(T);
-            @this.Send(state => { result = ((Func<T>) state)(); }, action);
+            T result = default(T);
+            @this.Send(state => { result = ((Func<T>)state)(); }, action);
             return result;
         }
 
@@ -39,12 +39,12 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static Task PostAsync(this SynchronizationContext @this, Action action)
         {
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
             @this.Post(state =>
             {
                 try
                 {
-                    ((Action) state)();
+                    ((Action)state)();
                     tcs.TrySetResult(null);
                 }
                 catch (Exception ex)
@@ -63,12 +63,12 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static Task<T> PostAsync<T>(this SynchronizationContext @this, Func<T> action)
         {
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
+            TaskCompletionSource<T> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
             @this.Post(state =>
             {
                 try
                 {
-                    tcs.SetResult(((Func<T>) state)());
+                    tcs.SetResult(((Func<T>)state)());
                 }
                 catch (Exception ex)
                 {
@@ -85,7 +85,7 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static Task PostAsync(this SynchronizationContext @this, Func<Task> action)
         {
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
             @this.Post(async state =>
             {
                 try
@@ -109,7 +109,7 @@ namespace Nito.AsyncEx
         /// <param name="action">The delegate to execute.</param>
         public static Task<T> PostAsync<T>(this SynchronizationContext @this, Func<Task<T>> action)
         {
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
+            TaskCompletionSource<T> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
             @this.Post(async state =>
             {
                 try

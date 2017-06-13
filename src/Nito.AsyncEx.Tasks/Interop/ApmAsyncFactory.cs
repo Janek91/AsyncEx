@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx.Interop
 {
@@ -18,7 +17,7 @@ namespace Nito.AsyncEx.Interop
         /// <returns>The asynchronous operation, to be returned by the Begin method of the APM pattern.</returns>
         public static IAsyncResult ToBegin(Task task, AsyncCallback callback, object state)
         {
-            var tcs = new TaskCompletionSource<object>(state, TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>(state, TaskCreationOptions.RunContinuationsAsynchronously);
             SynchronizationContextSwitcher.NoContext(() => CompleteAsync(task, callback, tcs));
             return tcs.Task;
         }
@@ -64,7 +63,7 @@ namespace Nito.AsyncEx.Interop
         /// <returns>The asynchronous operation, to be returned by the Begin method of the APM pattern.</returns>
         public static IAsyncResult ToBegin<TResult>(Task<TResult> task, AsyncCallback callback, object state)
         {
-            var tcs = new TaskCompletionSource<TResult>(state, TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>(state, TaskCreationOptions.RunContinuationsAsynchronously);
             SynchronizationContextSwitcher.NoContext(() => CompleteAsync(task, callback, tcs));
             return tcs.Task;
         }

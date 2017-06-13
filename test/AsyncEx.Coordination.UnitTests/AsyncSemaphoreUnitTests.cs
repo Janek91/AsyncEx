@@ -1,22 +1,20 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics.CodeAnalysis;
-using Xunit;
 using Nito.AsyncEx.Testing;
+using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncSemaphoreUnitTests
     {
         [Fact]
         public async Task WaitAsync_NoSlotsAvailable_IsNotCompleted()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.Equal(0, semaphore.CurrentCount);
-            var task = semaphore.WaitAsync();
+            Task task = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
             await AsyncAssert.NeverCompletesAsync(task);
         }
@@ -24,12 +22,12 @@ namespace UnitTests
         [Fact]
         public async Task WaitAsync_SlotAvailable_IsCompleted()
         {
-            var semaphore = new AsyncSemaphore(1);
+            AsyncSemaphore semaphore = new AsyncSemaphore(1);
             Assert.Equal(1, semaphore.CurrentCount);
-            var task1 = semaphore.WaitAsync();
+            Task task1 = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.True(task1.IsCompleted);
-            var task2 = semaphore.WaitAsync();
+            Task task2 = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
             await AsyncAssert.NeverCompletesAsync(task2);
         }
@@ -37,11 +35,11 @@ namespace UnitTests
         [Fact]
         public void WaitAsync_PreCancelled_SlotAvailable_SucceedsSynchronously()
         {
-            var semaphore = new AsyncSemaphore(1);
+            AsyncSemaphore semaphore = new AsyncSemaphore(1);
             Assert.Equal(1, semaphore.CurrentCount);
-            var token = new CancellationToken(true);
+            CancellationToken token = new CancellationToken(true);
 
-            var task = semaphore.WaitAsync(token);
+            Task task = semaphore.WaitAsync(token);
             
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.True(task.IsCompleted);
@@ -52,11 +50,11 @@ namespace UnitTests
         [Fact]
         public void WaitAsync_PreCancelled_NoSlotAvailable_CancelsSynchronously()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.Equal(0, semaphore.CurrentCount);
-            var token = new CancellationToken(true);
+            CancellationToken token = new CancellationToken(true);
 
-            var task = semaphore.WaitAsync(token);
+            Task task = semaphore.WaitAsync(token);
 
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.True(task.IsCompleted);
@@ -67,10 +65,10 @@ namespace UnitTests
         [Fact]
         public async Task WaitAsync_Cancelled_DoesNotTakeSlot()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.Equal(0, semaphore.CurrentCount);
-            var cts = new CancellationTokenSource();
-            var task = semaphore.WaitAsync(cts.Token);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Task task = semaphore.WaitAsync(cts.Token);
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.False(task.IsCompleted);
 
@@ -86,11 +84,11 @@ namespace UnitTests
         [Fact]
         public void Release_WithoutWaiters_IncrementsCount()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.Equal(0, semaphore.CurrentCount);
             semaphore.Release();
             Assert.Equal(1, semaphore.CurrentCount);
-            var task = semaphore.WaitAsync();
+            Task task = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.True(task.IsCompleted);
         }
@@ -98,9 +96,9 @@ namespace UnitTests
         [Fact]
         public async Task Release_WithWaiters_ReleasesWaiters()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.Equal(0, semaphore.CurrentCount);
-            var task = semaphore.WaitAsync();
+            Task task = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.False(task.IsCompleted);
             semaphore.Release();
@@ -111,7 +109,7 @@ namespace UnitTests
         [Fact]
         public void Release_Overflow_ThrowsException()
         {
-            var semaphore = new AsyncSemaphore(long.MaxValue);
+            AsyncSemaphore semaphore = new AsyncSemaphore(long.MaxValue);
             Assert.Equal(long.MaxValue, semaphore.CurrentCount);
             AsyncAssert.Throws<OverflowException>(() => semaphore.Release());
         }
@@ -119,7 +117,7 @@ namespace UnitTests
         [Fact]
         public void Release_ZeroSlots_HasNoEffect()
         {
-            var semaphore = new AsyncSemaphore(1);
+            AsyncSemaphore semaphore = new AsyncSemaphore(1);
             Assert.Equal(1, semaphore.CurrentCount);
             semaphore.Release(0);
             Assert.Equal(1, semaphore.CurrentCount);
@@ -128,7 +126,7 @@ namespace UnitTests
         [Fact]
         public void Id_IsNotZero()
         {
-            var semaphore = new AsyncSemaphore(0);
+            AsyncSemaphore semaphore = new AsyncSemaphore(0);
             Assert.NotEqual(0, semaphore.Id);
         }
     }

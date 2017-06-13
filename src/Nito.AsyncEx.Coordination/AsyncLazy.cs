@@ -61,9 +61,13 @@ namespace Nito.AsyncEx
             get
             {
                 if (!_instance.IsValueCreated)
+                {
                     return LazyState.NotStarted;
+                }
                 if (!_instance.Value.IsCompleted)
+                {
                     return LazyState.Executing;
+                }
                 return LazyState.Completed;
             }
         }
@@ -76,12 +80,18 @@ namespace Nito.AsyncEx
         public AsyncLazy(Func<Task<T>> factory, AsyncLazyFlags flags = AsyncLazyFlags.None)
         {
             if (factory == null)
+            {
                 throw new ArgumentNullException(nameof(factory));
+            }
             _factory = factory;
             if ((flags & AsyncLazyFlags.RetryOnFailure) == AsyncLazyFlags.RetryOnFailure)
+            {
                 _factory = RetryOnFailure(_factory);
+            }
             if ((flags & AsyncLazyFlags.ExecuteOnCallingThread) != AsyncLazyFlags.ExecuteOnCallingThread)
+            {
                 _factory = RunOnThreadPool(_factory);
+            }
 
             _mutex = new object();
             _instance = new Lazy<Task<T>>(_factory);
@@ -103,7 +113,9 @@ namespace Nito.AsyncEx
             get
             {
                 lock (_mutex)
+                {
                     return _instance.IsValueCreated;
+                }
             }
         }
 
@@ -115,7 +127,9 @@ namespace Nito.AsyncEx
             get
             {
                 lock (_mutex)
+                {
                     return _instance.Value;
+                }
             }
         }
 
@@ -166,9 +180,9 @@ namespace Nito.AsyncEx
         /// </summary>
         public void Start()
         {
-// ReSharper disable UnusedVariable
-            var unused = Task;
-// ReSharper restore UnusedVariable
+            // ReSharper disable UnusedVariable
+            Task<T> unused = Task;
+            // ReSharper restore UnusedVariable
         }
 
         internal enum LazyState
@@ -195,7 +209,9 @@ namespace Nito.AsyncEx
                 get
                 {
                     if (!_lazy._instance.IsValueCreated)
+                    {
                         throw new InvalidOperationException("Not yet created.");
+                    }
                     return _lazy._instance.Value;
                 }
             }
@@ -205,7 +221,9 @@ namespace Nito.AsyncEx
                 get
                 {
                     if (!_lazy._instance.IsValueCreated || !_lazy._instance.Value.IsCompleted)
+                    {
                         throw new InvalidOperationException("Not yet created.");
+                    }
                     return _lazy._instance.Value.Result;
                 }
             }

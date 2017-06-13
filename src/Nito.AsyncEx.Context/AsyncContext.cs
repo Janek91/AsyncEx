@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -63,7 +63,7 @@ namespace Nito.AsyncEx
         /// </summary>
         private void OperationStarted()
         {
-            var newCount = Interlocked.Increment(ref _outstandingOperations);
+            int newCount = Interlocked.Increment(ref _outstandingOperations);
         }
 
         /// <summary>
@@ -71,9 +71,11 @@ namespace Nito.AsyncEx
         /// </summary>
         private void OperationCompleted()
         {
-            var newCount = Interlocked.Decrement(ref _outstandingOperations);
+            int newCount = Interlocked.Decrement(ref _outstandingOperations);
             if (newCount == 0)
+            {
                 _queue.CompleteAdding();
+            }
         }
 
         /// <summary>
@@ -106,14 +108,16 @@ namespace Nito.AsyncEx
         {
             using (new SynchronizationContextSwitcher(_synchronizationContext))
             {
-                var tasks = _queue.GetConsumingEnumerable();
-                foreach (var task in tasks)
+                IEnumerable<Tuple<Task, bool>> tasks = _queue.GetConsumingEnumerable();
+                foreach (Tuple<Task, bool> task in tasks)
                 {
                     _taskScheduler.DoTryExecuteTask(task.Item1);
 
                     // Propagate exception if necessary.
                     if (task.Item2)
+                    {
                         task.Item1.WaitAndUnwrapException();
+                    }
                 }
             }
         }
@@ -125,11 +129,13 @@ namespace Nito.AsyncEx
         public static void Run(Action action)
         {
             if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            using (var context = new AsyncContext())
             {
-                var task = context._taskFactory.Run(action);
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            using (AsyncContext context = new AsyncContext())
+            {
+                Task task = context._taskFactory.Run(action);
                 context.Execute();
                 task.WaitAndUnwrapException();
             }
@@ -143,11 +149,13 @@ namespace Nito.AsyncEx
         public static TResult Run<TResult>(Func<TResult> action)
         {
             if (action == null)
-                throw new ArgumentNullException(nameof(action));
-
-            using (var context = new AsyncContext())
             {
-                var task = context._taskFactory.Run(action);
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            using (AsyncContext context = new AsyncContext())
+            {
+                Task<TResult> task = context._taskFactory.Run(action);
                 context.Execute();
                 return task.WaitAndUnwrapException();
             }
@@ -160,13 +168,15 @@ namespace Nito.AsyncEx
         public static void Run(Func<Task> action)
         {
             if (action == null)
+            {
                 throw new ArgumentNullException(nameof(action));
+            }
 
             // ReSharper disable AccessToDisposedClosure
-            using (var context = new AsyncContext())
+            using (AsyncContext context = new AsyncContext())
             {
                 context.OperationStarted();
-                var task = context._taskFactory.Run(action).ContinueWith(t =>
+                Task task = context._taskFactory.Run(action).ContinueWith(t =>
                 {
                     context.OperationCompleted();
                     t.WaitAndUnwrapException();
@@ -185,13 +195,15 @@ namespace Nito.AsyncEx
         public static TResult Run<TResult>(Func<Task<TResult>> action)
         {
             if (action == null)
+            {
                 throw new ArgumentNullException(nameof(action));
+            }
 
             // ReSharper disable AccessToDisposedClosure
-            using (var context = new AsyncContext())
+            using (AsyncContext context = new AsyncContext())
             {
                 context.OperationStarted();
-                var task = context._taskFactory.Run(action).ContinueWith(t =>
+                Task<TResult> task = context._taskFactory.Run(action).ContinueWith(t =>
                 {
                     context.OperationCompleted();
                     return t.WaitAndUnwrapException();
@@ -209,7 +221,7 @@ namespace Nito.AsyncEx
         {
             get
             {
-                var syncContext = SynchronizationContext.Current as AsyncContextSynchronizationContext;
+                AsyncContextSynchronizationContext syncContext = SynchronizationContext.Current as AsyncContextSynchronizationContext;
                 if (syncContext == null)
                 {
                     return null;

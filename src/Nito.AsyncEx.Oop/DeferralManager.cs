@@ -51,9 +51,13 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (_ce == null)
+                {
                     _ce = new AsyncCountdownEvent(1);
+                }
                 else
+                {
                     _ce.AddCount();
+                }
             }
         }
 
@@ -62,7 +66,10 @@ namespace Nito.AsyncEx
         /// </summary>
         internal void DecrementCount()
         {
-            _ce.Signal();
+            lock (_mutex)
+            {
+                _ce.Signal();
+            }
         }
 
         /// <summary>
@@ -78,7 +85,9 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (_ce == null)
+                {
                     return TaskConstants.Completed;
+                }
                 return _ce.WaitAsync();
             }
         }

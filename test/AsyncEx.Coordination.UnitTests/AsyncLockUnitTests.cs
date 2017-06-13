@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Nito.AsyncEx;
-using Xunit;
 using Nito.AsyncEx.Testing;
+using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncLockUnitTests
     {
         [Fact]
         public void AsyncLock_Unlocked_SynchronouslyPermitsLock()
         {
-            var mutex = new AsyncLock();
+            AsyncLock mutex = new AsyncLock();
 
-            var lockTask = mutex.LockAsync().AsTask();
+            Task<IDisposable> lockTask = mutex.LockAsync().AsTask();
 
             Assert.True(lockTask.IsCompleted);
             Assert.False(lockTask.IsFaulted);
@@ -25,11 +24,11 @@ namespace UnitTests
         [Fact]
         public async Task AsyncLock_Locked_PreventsLockUntilUnlocked()
         {
-            var mutex = new AsyncLock();
-            var task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            AsyncLock mutex = new AsyncLock();
+            TaskCompletionSource<object> task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
 
-            var task1 = Task.Run(async () =>
+            Task task1 = Task.Run(async () =>
             {
                 using (await mutex.LockAsync())
                 {
@@ -39,7 +38,7 @@ namespace UnitTests
             });
             await task1HasLock.Task;
 
-            var task2 = Task.Run(async () =>
+            Task task2 = Task.Run(async () =>
             {
                 await mutex.LockAsync();
             });
@@ -52,18 +51,18 @@ namespace UnitTests
         [Fact]
         public async Task AsyncLock_DoubleDispose_OnlyPermitsOneTask()
         {
-            var mutex = new AsyncLock();
-            var task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            AsyncLock mutex = new AsyncLock();
+            TaskCompletionSource<object> task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
 
             await Task.Run(async () =>
             {
-                var key = await mutex.LockAsync();
+                IDisposable key = await mutex.LockAsync();
                 key.Dispose();
                 key.Dispose();
             });
 
-            var task1 = Task.Run(async () =>
+            Task task1 = Task.Run(async () =>
             {
                 using (await mutex.LockAsync())
                 {
@@ -73,7 +72,7 @@ namespace UnitTests
             });
             await task1HasLock.Task;
 
-            var task2 = Task.Run(async () =>
+            Task task2 = Task.Run(async () =>
             {
                 await mutex.LockAsync();
             });
@@ -86,14 +85,14 @@ namespace UnitTests
         [Fact]
         public async Task AsyncLock_Locked_OnlyPermitsOneLockerAtATime()
         {
-            var mutex = new AsyncLock();
-            var task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task2Ready = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task2HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task2Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            AsyncLock mutex = new AsyncLock();
+            TaskCompletionSource<object> task1HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task1Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task2Ready = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task2HasLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> task2Continue = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
 
-            var task1 = Task.Run(async () =>
+            Task task1 = Task.Run(async () =>
             {
                 using (await mutex.LockAsync())
                 {
@@ -103,9 +102,9 @@ namespace UnitTests
             });
             await task1HasLock.Task;
 
-            var task2 = Task.Run(async () =>
+            Task task2 = Task.Run(async () =>
             {
-                var key = mutex.LockAsync();
+                AwaitableDisposable<IDisposable> key = mutex.LockAsync();
                 task2Ready.SetResult(null);
                 using (await key)
                 {
@@ -115,7 +114,7 @@ namespace UnitTests
             });
             await task2Ready.Task;
 
-            var task3 = Task.Run(async () =>
+            Task task3 = Task.Run(async () =>
             {
                 await mutex.LockAsync();
             });
@@ -132,10 +131,10 @@ namespace UnitTests
         [Fact]
         public void AsyncLock_PreCancelled_Unlocked_SynchronouslyTakesLock()
         {
-            var mutex = new AsyncLock();
-            var token = new CancellationToken(true);
+            AsyncLock mutex = new AsyncLock();
+            CancellationToken token = new CancellationToken(true);
 
-            var task = mutex.LockAsync(token).AsTask();
+            Task<IDisposable> task = mutex.LockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.False(task.IsCanceled);
@@ -145,11 +144,11 @@ namespace UnitTests
         [Fact]
         public void AsyncLock_PreCancelled_Locked_SynchronouslyCancels()
         {
-            var mutex = new AsyncLock();
-            var lockTask = mutex.LockAsync();
-            var token = new CancellationToken(true);
+            AsyncLock mutex = new AsyncLock();
+            AwaitableDisposable<IDisposable> lockTask = mutex.LockAsync();
+            CancellationToken token = new CancellationToken(true);
 
-            var task = mutex.LockAsync(token).AsTask();
+            Task<IDisposable> task = mutex.LockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.True(task.IsCanceled);
@@ -159,14 +158,14 @@ namespace UnitTests
         [Fact]
         public async Task AsyncLock_CancelledLock_LeavesLockUnlocked()
         {
-            var mutex = new AsyncLock();
-            var cts = new CancellationTokenSource();
-            var taskReady = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            AsyncLock mutex = new AsyncLock();
+            CancellationTokenSource cts = new CancellationTokenSource();
+            TaskCompletionSource<object> taskReady = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
 
-            var unlock = await mutex.LockAsync();
-            var task = Task.Run(async () =>
+            IDisposable unlock = await mutex.LockAsync();
+            Task task = Task.Run(async () =>
             {
-                var lockTask = mutex.LockAsync(cts.Token);
+                AwaitableDisposable<IDisposable> lockTask = mutex.LockAsync(cts.Token);
                 taskReady.SetResult(null);
                 await lockTask;
             });
@@ -176,18 +175,18 @@ namespace UnitTests
             Assert.True(task.IsCanceled);
             unlock.Dispose();
 
-            var finalLockTask = mutex.LockAsync();
+            AwaitableDisposable<IDisposable> finalLockTask = mutex.LockAsync();
             await finalLockTask;
         }
 
         [Fact]
         public async Task AsyncLock_CanceledLock_ThrowsException()
         {
-            var mutex = new AsyncLock();
-            var cts = new CancellationTokenSource();
+            AsyncLock mutex = new AsyncLock();
+            CancellationTokenSource cts = new CancellationTokenSource();
 
             await mutex.LockAsync();
-            var canceledLockTask = mutex.LockAsync(cts.Token).AsTask();
+            Task<IDisposable> canceledLockTask = mutex.LockAsync(cts.Token).AsTask();
             cts.Cancel();
 
             await AsyncAssert.ThrowsAsync<OperationCanceledException>(canceledLockTask);
@@ -196,8 +195,8 @@ namespace UnitTests
         [Fact]
         public async Task AsyncLock_CanceledTooLate_StillTakesLock()
         {
-            var mutex = new AsyncLock();
-            var cts = new CancellationTokenSource();
+            AsyncLock mutex = new AsyncLock();
+            CancellationTokenSource cts = new CancellationTokenSource();
 
             AwaitableDisposable<IDisposable> cancelableLockTask;
             using (await mutex.LockAsync())
@@ -205,10 +204,10 @@ namespace UnitTests
                 cancelableLockTask = mutex.LockAsync(cts.Token);
             }
 
-            var key = await cancelableLockTask;
+            IDisposable key = await cancelableLockTask;
             cts.Cancel();
 
-            var nextLocker = mutex.LockAsync().AsTask();
+            Task<IDisposable> nextLocker = mutex.LockAsync().AsTask();
             Assert.False(nextLocker.IsCompleted);
 
             key.Dispose();
@@ -218,7 +217,7 @@ namespace UnitTests
         [Fact]
         public void Id_IsNotZero()
         {
-            var mutex = new AsyncLock();
+            AsyncLock mutex = new AsyncLock();
             Assert.NotEqual(0, mutex.Id);
         }
 
@@ -229,10 +228,10 @@ namespace UnitTests
 
             await Task.Run(() =>
             {
-                var asyncLock = new AsyncLock();
-                var cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = cancellationTokenSource.Token;
-                var task1 = Task.Run(
+                AsyncLock asyncLock = new AsyncLock();
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = cancellationTokenSource.Token;
+                Task task1 = Task.Run(
                     async () =>
                     {
                         while (!cancellationToken.IsCancellationRequested)
@@ -243,7 +242,7 @@ namespace UnitTests
                             }
                         }
                     });
-                var task2 = Task.Run(
+                Task task2 = Task.Run(
                     () =>
                     {
                         using (asyncLock.Lock())

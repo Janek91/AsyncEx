@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -22,7 +20,7 @@ namespace Nito.AsyncEx
         /// </summary>
         private static AsyncContext CreateAsyncContext()
         {
-            var result = new AsyncContext();
+            AsyncContext result = new AsyncContext();
             result.SynchronizationContext.OperationStarted();
             return result;
         }

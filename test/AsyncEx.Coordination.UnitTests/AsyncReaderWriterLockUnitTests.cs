@@ -1,27 +1,26 @@
-﻿using Nito.AsyncEx;
-using Nito.AsyncEx.Testing;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Nito.AsyncEx;
+using Nito.AsyncEx.Testing;
 using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncReaderWriterLockUnitTests
     {
         [Fact]
         public async Task Unlocked_PermitsWriterLock()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.WriterLockAsync();
         }
 
         [Fact]
         public async Task Unlocked_PermitsMultipleReaderLocks()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.ReaderLockAsync();
             await rwl.ReaderLockAsync();
         }
@@ -29,28 +28,28 @@ namespace UnitTests
         [Fact]
         public async Task WriteLocked_PreventsAnotherWriterLock()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.WriterLockAsync();
-            var task = rwl.WriterLockAsync().AsTask();
+            Task<IDisposable> task = rwl.WriterLockAsync().AsTask();
             await AsyncAssert.NeverCompletesAsync(task);
         }
 
         [Fact]
         public async Task WriteLocked_PreventsReaderLock()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.WriterLockAsync();
-            var task = rwl.ReaderLockAsync().AsTask();
+            Task<IDisposable> task = rwl.ReaderLockAsync().AsTask();
             await AsyncAssert.NeverCompletesAsync(task);
         }
 
         [Fact]
         public async Task WriteLocked_Unlocked_PermitsAnotherWriterLock()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var firstWriteLockTaken = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var releaseFirstWriteLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
-            var task = Task.Run(async () =>
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            TaskCompletionSource<object> firstWriteLockTaken = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            TaskCompletionSource<object> releaseFirstWriteLock = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+            Task task = Task.Run(async () =>
             {
                 using (await rwl.WriterLockAsync())
                 {
@@ -59,7 +58,7 @@ namespace UnitTests
                 }
             });
             await firstWriteLockTaken.Task;
-            var lockTask = rwl.WriterLockAsync().AsTask();
+            Task<IDisposable> lockTask = rwl.WriterLockAsync().AsTask();
             Assert.False(lockTask.IsCompleted);
             releaseFirstWriteLock.SetResult(null);
             await lockTask;
@@ -68,26 +67,26 @@ namespace UnitTests
         [Fact]
         public async Task ReadLocked_PreventsWriterLock()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.ReaderLockAsync();
-            var task = rwl.WriterLockAsync().AsTask();
+            Task<IDisposable> task = rwl.WriterLockAsync().AsTask();
             await AsyncAssert.NeverCompletesAsync(task);
         }
 
         [Fact]
         public void Id_IsNotZero()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             Assert.NotEqual(0, rwl.Id);
         }
 
         [Fact]
         public void WriterLock_PreCancelled_LockAvailable_SynchronouslyTakesLock()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var token = new CancellationToken(true);
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            CancellationToken token = new CancellationToken(true);
 
-            var task = rwl.WriterLockAsync(token).AsTask();
+            Task<IDisposable> task = rwl.WriterLockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.False(task.IsCanceled);
@@ -97,11 +96,11 @@ namespace UnitTests
         [Fact]
         public void WriterLock_PreCancelled_LockNotAvailable_SynchronouslyCancels()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var token = new CancellationToken(true);
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            CancellationToken token = new CancellationToken(true);
             rwl.WriterLockAsync();
 
-            var task = rwl.WriterLockAsync(token).AsTask();
+            Task<IDisposable> task = rwl.WriterLockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.True(task.IsCanceled);
@@ -111,10 +110,10 @@ namespace UnitTests
         [Fact]
         public void ReaderLock_PreCancelled_LockAvailable_SynchronouslyTakesLock()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var token = new CancellationToken(true);
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            CancellationToken token = new CancellationToken(true);
 
-            var task = rwl.ReaderLockAsync(token).AsTask();
+            Task<IDisposable> task = rwl.ReaderLockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.False(task.IsCanceled);
@@ -124,11 +123,11 @@ namespace UnitTests
         [Fact]
         public void ReaderLock_PreCancelled_LockNotAvailable_SynchronouslyCancels()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var token = new CancellationToken(true);
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            CancellationToken token = new CancellationToken(true);
             rwl.WriterLockAsync();
 
-            var task = rwl.ReaderLockAsync(token).AsTask();
+            Task<IDisposable> task = rwl.ReaderLockAsync(token).AsTask();
 
             Assert.True(task.IsCompleted);
             Assert.True(task.IsCanceled);
@@ -138,11 +137,11 @@ namespace UnitTests
         [Fact]
         public async Task WriteLocked_WriterLockCancelled_DoesNotTakeLockWhenUnlocked()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             using (await rwl.WriterLockAsync())
             {
-                var cts = new CancellationTokenSource();
-                var task = rwl.WriterLockAsync(cts.Token).AsTask();
+                CancellationTokenSource cts = new CancellationTokenSource();
+                Task<IDisposable> task = rwl.WriterLockAsync(cts.Token).AsTask();
                 cts.Cancel();
                 await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
             }
@@ -153,11 +152,11 @@ namespace UnitTests
         [Fact]
         public async Task WriteLocked_ReaderLockCancelled_DoesNotTakeLockWhenUnlocked()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             using (await rwl.WriterLockAsync())
             {
-                var cts = new CancellationTokenSource();
-                var task = rwl.ReaderLockAsync(cts.Token).AsTask();
+                CancellationTokenSource cts = new CancellationTokenSource();
+                Task<IDisposable> task = rwl.ReaderLockAsync(cts.Token).AsTask();
                 cts.Cancel();
                 await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
             }
@@ -168,7 +167,7 @@ namespace UnitTests
         [Fact]
         public async Task LockReleased_WriteTakesPriorityOverRead()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             Task writeLock, readLock;
             using (await rwl.WriterLockAsync())
             {
@@ -183,7 +182,7 @@ namespace UnitTests
         [Fact]
         public async Task ReaderLocked_ReaderReleased_ReaderAndWriterWaiting_DoesNotReleaseReaderOrWriter()
         {
-            var rwl = new AsyncReaderWriterLock();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             Task readLock, writeLock;
             await rwl.ReaderLockAsync();
             using (await rwl.ReaderLockAsync())
@@ -199,20 +198,28 @@ namespace UnitTests
         [Fact]
         public async Task LoadTest()
         {
-            var rwl = new AsyncReaderWriterLock();
-            var readKeys = new List<IDisposable>();
+            AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
+            List<IDisposable> readKeys = new List<IDisposable>();
             for (int i = 0; i != 1000; ++i)
+            {
                 readKeys.Add(rwl.ReaderLock());
-            var writeTask = Task.Run(() => { rwl.WriterLock().Dispose(); });
-            var readTasks = new List<Task>();
+            }
+            Task writeTask = Task.Run(() => { rwl.WriterLock().Dispose(); });
+            List<Task> readTasks = new List<Task>();
             for (int i = 0; i != 100; ++i)
+            {
                 readTasks.Add(Task.Run(() => rwl.ReaderLock().Dispose()));
+            }
             await Task.Delay(1000);
-            foreach (var readKey in readKeys)
+            foreach (IDisposable readKey in readKeys)
+            {
                 readKey.Dispose();
+            }
             await writeTask;
-            foreach (var readTask in readTasks)
+            foreach (Task readTask in readTasks)
+            {
                 await readTask;
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Nito.AsyncEx
 {
@@ -40,7 +39,9 @@ namespace Nito.AsyncEx
         public static void NoContext(Action action)
         {
             using (new SynchronizationContextSwitcher(null))
+            {
                 action();
+            }
         }
 
         /// <summary>
@@ -50,7 +51,9 @@ namespace Nito.AsyncEx
         public static T NoContext<T>(Func<T> action)
         {
             using (new SynchronizationContextSwitcher(null))
+            {
                 return action();
+            }
         }
     }
 }

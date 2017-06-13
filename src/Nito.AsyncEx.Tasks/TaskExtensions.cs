@@ -18,19 +18,27 @@ namespace Nito.AsyncEx
         public static Task WaitAsync(this Task @this, CancellationToken cancellationToken)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             if (!cancellationToken.CanBeCanceled)
+            {
                 return @this;
+            }
             if (cancellationToken.IsCancellationRequested)
+            {
                 return Task.FromCanceled(cancellationToken);
+            }
             return DoWaitAsync(@this, cancellationToken);
         }
 
         private static async Task DoWaitAsync(Task task, CancellationToken cancellationToken)
         {
-            using (var cancelTaskSource = new CancellationTokenTaskSource<object>(cancellationToken))
+            using (CancellationTokenTaskSource<object> cancelTaskSource = new CancellationTokenTaskSource<object>(cancellationToken))
+            {
                 await await Task.WhenAny(task, cancelTaskSource.Task).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -41,7 +49,9 @@ namespace Nito.AsyncEx
         public static Task<Task> WhenAny(this IEnumerable<Task> @this, CancellationToken cancellationToken)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAny(@this).WaitAsync(cancellationToken);
         }
@@ -53,7 +63,9 @@ namespace Nito.AsyncEx
         public static Task<Task> WhenAny(this IEnumerable<Task> @this)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAny(@this);
         }
@@ -65,7 +77,9 @@ namespace Nito.AsyncEx
         public static Task WhenAll(this IEnumerable<Task> @this)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAll(@this);
         }
@@ -79,19 +93,27 @@ namespace Nito.AsyncEx
         public static Task<TResult> WaitAsync<TResult>(this Task<TResult> @this, CancellationToken cancellationToken)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             if (!cancellationToken.CanBeCanceled)
+            {
                 return @this;
+            }
             if (cancellationToken.IsCancellationRequested)
+            {
                 return Task.FromCanceled<TResult>(cancellationToken);
+            }
             return DoWaitAsync(@this, cancellationToken);
         }
 
         private static async Task<TResult> DoWaitAsync<TResult>(Task<TResult> task, CancellationToken cancellationToken)
         {
-            using (var cancelTaskSource = new CancellationTokenTaskSource<TResult>(cancellationToken))
+            using (CancellationTokenTaskSource<TResult> cancelTaskSource = new CancellationTokenTaskSource<TResult>(cancellationToken))
+            {
                 return await await Task.WhenAny(task, cancelTaskSource.Task).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -103,7 +125,9 @@ namespace Nito.AsyncEx
         public static Task<Task<TResult>> WhenAny<TResult>(this IEnumerable<Task<TResult>> @this, CancellationToken cancellationToken)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAny(@this).WaitAsync(cancellationToken);
         }
@@ -116,7 +140,9 @@ namespace Nito.AsyncEx
         public static Task<Task<TResult>> WhenAny<TResult>(this IEnumerable<Task<TResult>> @this)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAny(@this);
         }
@@ -129,7 +155,9 @@ namespace Nito.AsyncEx
         public static Task<TResult[]> WhenAll<TResult>(this IEnumerable<Task<TResult>> @this)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
 
             return Task.WhenAll(@this);
         }

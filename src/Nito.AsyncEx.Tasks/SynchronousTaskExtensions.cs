@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nito.AsyncEx.Synchronous
+namespace Nito.AsyncEx
 {
     /// <summary>
     /// Provides synchronous extension methods for tasks.
     /// </summary>
-    public static class TaskExtensions
+    public static class SynchronousTaskExtensions
     {
         /// <summary>
         /// Waits for the task to complete, unwrapping any exceptions.
@@ -17,7 +16,9 @@ namespace Nito.AsyncEx.Synchronous
         public static void WaitAndUnwrapException(this Task task)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             task.GetAwaiter().GetResult();
         }
 
@@ -30,7 +31,9 @@ namespace Nito.AsyncEx.Synchronous
         public static void WaitAndUnwrapException(this Task task, CancellationToken cancellationToken)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             try
             {
                 task.Wait(cancellationToken);
@@ -50,7 +53,9 @@ namespace Nito.AsyncEx.Synchronous
         public static TResult WaitAndUnwrapException<TResult>(this Task<TResult> task)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             return task.GetAwaiter().GetResult();
         }
 
@@ -65,7 +70,9 @@ namespace Nito.AsyncEx.Synchronous
         public static TResult WaitAndUnwrapException<TResult>(this Task<TResult> task, CancellationToken cancellationToken)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             try
             {
                 task.Wait(cancellationToken);
@@ -84,7 +91,9 @@ namespace Nito.AsyncEx.Synchronous
         public static void WaitWithoutException(this Task task)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             try
             {
                 task.Wait();
@@ -103,7 +112,9 @@ namespace Nito.AsyncEx.Synchronous
         public static void WaitWithoutException(this Task task, CancellationToken cancellationToken)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             try
             {
                 task.Wait(cancellationToken);

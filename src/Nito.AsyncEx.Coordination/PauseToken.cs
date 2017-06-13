@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nito.AsyncEx
@@ -23,9 +22,13 @@ namespace Nito.AsyncEx
             set
             {
                 if (value)
+                {
                     _mre.Reset();
+                }
                 else
+                {
                     _mre.Set();
+                }
             }
         }
 
@@ -75,7 +78,9 @@ namespace Nito.AsyncEx
         public Task WaitWhilePausedAsync()
         {
             if (_mre == null)
+            {
                 return TaskConstants.Completed;
+            }
             return _mre.WaitAsync();
         }
 
@@ -86,7 +91,9 @@ namespace Nito.AsyncEx
         public Task WaitWhilePausedAsync(CancellationToken token)
         {
             if (_mre == null)
+            {
                 return TaskConstants.Completed;
+            }
             return _mre.WaitAsync(token);
         }
 
@@ -96,7 +103,9 @@ namespace Nito.AsyncEx
         public void WaitWhilePaused()
         {
             if (_mre != null)
+            {
                 _mre.Wait();
+            }
         }
 
         /// <summary>
@@ -106,7 +115,9 @@ namespace Nito.AsyncEx
         public void WaitWhilePaused(CancellationToken token)
         {
             if (_mre != null)
+            {
                 _mre.Wait(token);
+            }
         }
     }
 }

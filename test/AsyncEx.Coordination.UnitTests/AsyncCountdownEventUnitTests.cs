@@ -1,20 +1,18 @@
-﻿using Nito.AsyncEx;
-using Nito.AsyncEx.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
+using Nito.AsyncEx;
+using Nito.AsyncEx.Testing;
 using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncCountdownEventUnitTests
     {
         [Fact]
         public async Task WaitAsync_Unset_IsNotCompleted()
         {
-            var ce = new AsyncCountdownEvent(1);
-            var task = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(1);
+            Task task = ce.WaitAsync();
 
             Assert.Equal(1, ce.CurrentCount);
             Assert.False(task.IsCompleted);
@@ -26,8 +24,8 @@ namespace UnitTests
         [Fact]
         public void WaitAsync_Set_IsCompleted()
         {
-            var ce = new AsyncCountdownEvent(0);
-            var task = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(0);
+            Task task = ce.WaitAsync();
 
             Assert.Equal(0, ce.CurrentCount);
             Assert.True(task.IsCompleted);
@@ -36,8 +34,8 @@ namespace UnitTests
         [Fact]
         public async Task AddCount_IncrementsCount()
         {
-            var ce = new AsyncCountdownEvent(1);
-            var task = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(1);
+            Task task = ce.WaitAsync();
             Assert.Equal(1, ce.CurrentCount);
             Assert.False(task.IsCompleted);
 
@@ -53,8 +51,8 @@ namespace UnitTests
         [Fact]
         public async Task Signal_Nonzero_IsNotCompleted()
         {
-            var ce = new AsyncCountdownEvent(2);
-            var task = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(2);
+            Task task = ce.WaitAsync();
             Assert.False(task.IsCompleted);
 
             ce.Signal();
@@ -69,8 +67,8 @@ namespace UnitTests
         [Fact]
         public void Signal_Zero_SynchronouslyCompletesWaitTask()
         {
-            var ce = new AsyncCountdownEvent(1);
-            var task = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(1);
+            Task task = ce.WaitAsync();
             Assert.False(task.IsCompleted);
 
             ce.Signal();
@@ -82,12 +80,12 @@ namespace UnitTests
         [Fact]
         public async Task Signal_AfterSet_CountsNegativeAndResetsTask()
         {
-            var ce = new AsyncCountdownEvent(0);
-            var originalTask = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(0);
+            Task originalTask = ce.WaitAsync();
 
             ce.Signal();
 
-            var newTask = ce.WaitAsync();
+            Task newTask = ce.WaitAsync();
             Assert.Equal(-1, ce.CurrentCount);
             Assert.NotSame(originalTask, newTask);
 
@@ -98,11 +96,11 @@ namespace UnitTests
         [Fact]
         public async Task AddCount_AfterSet_CountsPositiveAndResetsTask()
         {
-            var ce = new AsyncCountdownEvent(0);
-            var originalTask = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(0);
+            Task originalTask = ce.WaitAsync();
 
             ce.AddCount();
-            var newTask = ce.WaitAsync();
+            Task newTask = ce.WaitAsync();
 
             Assert.Equal(1, ce.CurrentCount);
             Assert.NotSame(originalTask, newTask);
@@ -114,12 +112,12 @@ namespace UnitTests
         [Fact]
         public async Task Signal_PastZero_PulsesTask()
         {
-            var ce = new AsyncCountdownEvent(1);
-            var originalTask = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(1);
+            Task originalTask = ce.WaitAsync();
 
             ce.Signal(2);
             await originalTask;
-            var newTask = ce.WaitAsync();
+            Task newTask = ce.WaitAsync();
 
             Assert.Equal(-1, ce.CurrentCount);
             Assert.NotSame(originalTask, newTask);
@@ -131,12 +129,12 @@ namespace UnitTests
         [Fact]
         public async Task AddCount_PastZero_PulsesTask()
         {
-            var ce = new AsyncCountdownEvent(-1);
-            var originalTask = ce.WaitAsync();
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(-1);
+            Task originalTask = ce.WaitAsync();
 
             ce.AddCount(2);
             await originalTask;
-            var newTask = ce.WaitAsync();
+            Task newTask = ce.WaitAsync();
 
             Assert.Equal(1, ce.CurrentCount);
             Assert.NotSame(originalTask, newTask);
@@ -148,21 +146,21 @@ namespace UnitTests
         [Fact]
         public void AddCount_Overflow_ThrowsException()
         {
-            var ce = new AsyncCountdownEvent(long.MaxValue);
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(long.MaxValue);
             AsyncAssert.Throws<OverflowException>(() => ce.AddCount());
         }
 
         [Fact]
         public void Signal_Underflow_ThrowsException()
         {
-            var ce = new AsyncCountdownEvent(long.MinValue);
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(long.MinValue);
             AsyncAssert.Throws<OverflowException>(() => ce.Signal());
         }
 
         [Fact]
         public void Id_IsNotZero()
         {
-            var ce = new AsyncCountdownEvent(0);
+            AsyncCountdownEvent ce = new AsyncCountdownEvent(0);
             Assert.NotEqual(0, ce.Id);
         }
     }

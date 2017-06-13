@@ -2,10 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -56,9 +54,13 @@ namespace Nito.AsyncEx
         {
             collection = collection ?? new ConcurrentQueue<T>();
             if (maxCount <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(maxCount), "The maximum count must be greater than zero.");
+            }
             if (maxCount < collection.Count)
+            {
                 throw new ArgumentException("The maximum count cannot be less than the number of elements in the collection.", nameof(maxCount));
+            }
             _collection = collection;
             _maxCount = maxCount;
             _mutex = new AsyncLock();
@@ -129,17 +131,25 @@ namespace Nito.AsyncEx
                 while (Full && !_completed)
                 {
                     if (sync)
+                    {
                         _completedOrNotFull.Wait(cancellationToken);
+                    }
                     else
+                    {
                         await _completedOrNotFull.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
 
                 // If the queue has been marked complete, then abort.
                 if (_completed)
+                {
                     throw new InvalidOperationException("Add failed; the producer/consumer collection has completed adding.");
+                }
 
                 if (!_collection.TryAdd(item))
+                {
                     throw new InvalidOperationException("Add failed; the add to the underlying collection failed.");
+                }
 
                 _completedOrNotEmpty.Notify();
             }
@@ -183,9 +193,13 @@ namespace Nito.AsyncEx
                 while (Empty && !_completed)
                 {
                     if (sync)
+                    {
                         _completedOrNotEmpty.Wait(cancellationToken);
+                    }
                     else
+                    {
                         await _completedOrNotEmpty.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
                 return !Empty;
             }
@@ -255,16 +269,24 @@ namespace Nito.AsyncEx
                 while (Empty && !_completed)
                 {
                     if (sync)
+                    {
                         _completedOrNotEmpty.Wait(cancellationToken);
+                    }
                     else
+                    {
                         await _completedOrNotEmpty.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
 
                 if (_completed && Empty)
+                {
                     throw new InvalidOperationException("Take failed; the producer/consumer collection has completed adding and is empty.");
+                }
 
                 if (!_collection.TryTake(out T item))
+                {
                     throw new InvalidOperationException("Take failed; the take from the underlying collection failed.");
+                }
 
                 _completedOrNotFull.Notify();
                 return item;

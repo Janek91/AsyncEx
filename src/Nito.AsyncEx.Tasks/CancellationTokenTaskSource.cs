@@ -25,7 +25,7 @@ namespace Nito.AsyncEx
                 Task = System.Threading.Tasks.Task.FromCanceled<T>(cancellationToken);
                 return;
             }
-            var tcs = new TaskCompletionSource<T>();
+            TaskCompletionSource<T> tcs = new TaskCompletionSource<T>();
             _registration = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken), useSynchronizationContext: false);
             Task = tcs.Task;
         }

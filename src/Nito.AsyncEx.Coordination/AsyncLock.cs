@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 // Original idea from Stephen Toub: http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266988.aspx
 
@@ -70,7 +69,7 @@ namespace Nito.AsyncEx
         /// Creates a new async-compatible mutual exclusion lock.
         /// </summary>
         public AsyncLock()
-            :this(null)
+            : this(null)
         {
         }
 
@@ -159,9 +158,13 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (_queue.IsEmpty)
+                {
                     _taken = false;
+                }
                 else
+                {
                     _queue.Dequeue(new Key(this));
+                }
             }
         }
 

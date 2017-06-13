@@ -41,8 +41,10 @@ namespace Nito.AsyncEx
             [System.Diagnostics.DebuggerNonUserCode]
             internal IEnumerable<Task> GetScheduledTasks()
             {
-                foreach (var item in _queue)
+                foreach (Tuple<Task, bool> item in _queue)
+                {
                     yield return item.Item1;
+                }
             }
 
             /// <summary>

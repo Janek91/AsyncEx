@@ -22,7 +22,9 @@ namespace Nito.AsyncEx
         public AwaitableDisposable(Task<T> task)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             _task = task;
         }
 

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 // Original idea from Stephen Toub: http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266983.aspx
 
@@ -128,13 +127,15 @@ namespace Nito.AsyncEx
         public void Release(long releaseCount)
         {
             if (releaseCount == 0)
+            {
                 return;
+            }
 
             lock (_mutex)
             {
                 checked
                 {
-                    var test = _count + releaseCount;
+                    long test = _count + releaseCount;
                 }
 
                 while (releaseCount != 0 && !_queue.IsEmpty)

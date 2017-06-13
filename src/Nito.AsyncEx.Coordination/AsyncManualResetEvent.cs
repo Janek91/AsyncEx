@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 // Original idea by Stephen Toub: http://blogs.msdn.com/b/pfxteam/archive/2012/02/11/10266920.aspx
 
@@ -47,7 +46,9 @@ namespace Nito.AsyncEx
             _mutex = new object();
             _tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
             if (set)
+            {
                 _tcs.TrySetResult(null);
+            }
         }
 
         /// <summary>
@@ -71,7 +72,13 @@ namespace Nito.AsyncEx
         /// </summary>
         public bool IsSet
         {
-            get { lock (_mutex) return _tcs.Task.IsCompleted; }
+            get
+            {
+                lock (_mutex)
+                {
+                    return _tcs.Task.IsCompleted;
+                }
+            }
         }
 
         /// <summary>
@@ -91,9 +98,11 @@ namespace Nito.AsyncEx
         /// <param name="cancellationToken">The cancellation token used to cancel the wait. If this token is already canceled, this method will first check whether the event is set.</param>
         public Task WaitAsync(CancellationToken cancellationToken)
         {
-            var waitTask = WaitAsync();
+            Task waitTask = WaitAsync();
             if (waitTask.IsCompleted)
+            {
                 return waitTask;
+            }
             return waitTask.WaitAsync(cancellationToken);
         }
 
@@ -111,9 +120,11 @@ namespace Nito.AsyncEx
         /// <param name="cancellationToken">The cancellation token used to cancel the wait. If this token is already canceled, this method will first check whether the event is set.</param>
         public void Wait(CancellationToken cancellationToken)
         {
-            var ret = WaitAsync();
+            Task ret = WaitAsync();
             if (ret.IsCompleted)
+            {
                 return;
+            }
             ret.WaitAndUnwrapException(cancellationToken);
         }
 
@@ -136,7 +147,9 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (_tcs.Task.IsCompleted)
+                {
                     _tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<object>();
+                }
             }
         }
 

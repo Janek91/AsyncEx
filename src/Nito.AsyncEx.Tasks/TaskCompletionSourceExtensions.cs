@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -20,21 +20,27 @@ namespace Nito.AsyncEx
         public static bool TryCompleteFromCompletedTask<TResult, TSourceResult>(this TaskCompletionSource<TResult> @this, Task<TSourceResult> task) where TSourceResult : TResult
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
 
             if (task.IsFaulted)
+            {
                 return @this.TrySetException(task.Exception.InnerExceptions);
+            }
             if (task.IsCanceled)
-            { 
+            {
                 try
                 {
                     task.WaitAndUnwrapException();
                 }
                 catch (OperationCanceledException exception)
                 {
-                    var token = exception.CancellationToken;
+                    CancellationToken token = exception.CancellationToken;
                     return token.IsCancellationRequested ? @this.TrySetCanceled(token) : @this.TrySetCanceled();
                 }
             }
@@ -52,14 +58,22 @@ namespace Nito.AsyncEx
         public static bool TryCompleteFromCompletedTask<TResult>(this TaskCompletionSource<TResult> @this, Task task, Func<TResult> resultFunc)
         {
             if (@this == null)
+            {
                 throw new ArgumentNullException(nameof(@this));
+            }
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
             if (resultFunc == null)
+            {
                 throw new ArgumentNullException(nameof(resultFunc));
+            }
 
             if (task.IsFaulted)
+            {
                 return @this.TrySetException(task.Exception.InnerExceptions);
+            }
             if (task.IsCanceled)
             {
                 try
@@ -68,7 +82,7 @@ namespace Nito.AsyncEx
                 }
                 catch (OperationCanceledException exception)
                 {
-                    var token = exception.CancellationToken;
+                    CancellationToken token = exception.CancellationToken;
                     return token.IsCancellationRequested ? @this.TrySetCanceled(token) : @this.TrySetCanceled();
                 }
             }

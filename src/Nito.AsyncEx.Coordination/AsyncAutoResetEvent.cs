@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 // Original idea by Stephen Toub: http://blogs.msdn.com/b/pfxteam/archive/2012/02/11/10266923.aspx
 
@@ -77,7 +75,13 @@ namespace Nito.AsyncEx
         /// </summary>
         public bool IsSet
         {
-            get { lock (_mutex) return _set; }
+            get
+            {
+                lock (_mutex)
+                {
+                    return _set;
+                }
+            }
         }
 
         /// <summary>
@@ -136,9 +140,13 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (_queue.IsEmpty)
+                {
                     _set = true;
+                }
                 else
+                {
                     _queue.Dequeue();
+                }
             }
         }
 

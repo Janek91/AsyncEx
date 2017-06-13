@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics.CodeAnalysis;
-using Xunit;
 using Nito.AsyncEx.Testing;
+using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncProducerConsumerQueueUnitTests
     {
@@ -33,11 +31,11 @@ namespace UnitTests
         [Fact]
         public async Task ConstructorWithCollection_AddsItems()
         {
-            var queue = new AsyncProducerConsumerQueue<int>(new[] { 3, 5, 7 });
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 3, 5, 7 });
 
-            var result1 = await queue.DequeueAsync();
-            var result2 = await queue.DequeueAsync();
-            var result3 = await queue.DequeueAsync();
+            int result1 = await queue.DequeueAsync();
+            int result2 = await queue.DequeueAsync();
+            int result3 = await queue.DequeueAsync();
 
             Assert.Equal(3, result1);
             Assert.Equal(5, result2);
@@ -47,10 +45,10 @@ namespace UnitTests
         [Fact]
         public async Task EnqueueAsync_SpaceAvailable_EnqueuesItem()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
 
             await queue.EnqueueAsync(3);
-            var result = await queue.DequeueAsync();
+            int result = await queue.DequeueAsync();
 
             Assert.Equal(3, result);
         }
@@ -58,7 +56,7 @@ namespace UnitTests
         [Fact]
         public async Task EnqueueAsync_CompleteAdding_ThrowsException()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
             await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.EnqueueAsync(3));
@@ -67,7 +65,7 @@ namespace UnitTests
         [Fact]
         public async Task DequeueAsync_EmptyAndComplete_ThrowsException()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
             await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.DequeueAsync());
@@ -76,9 +74,9 @@ namespace UnitTests
         [Fact]
         public async Task DequeueAsync_Empty_DoesNotComplete()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
 
-            var task = queue.DequeueAsync();
+            Task<int> task = queue.DequeueAsync();
 
             await AsyncAssert.NeverCompletesAsync(task);
         }
@@ -86,11 +84,11 @@ namespace UnitTests
         [Fact]
         public async Task DequeueAsync_Empty_ItemAdded_Completes()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
-            var task = queue.DequeueAsync();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
+            Task<int> task = queue.DequeueAsync();
 
             await queue.EnqueueAsync(13);
-            var result = await task;
+            int result = await task;
 
             Assert.Equal(13, result);
         }
@@ -98,9 +96,9 @@ namespace UnitTests
         [Fact]
         public async Task DequeueAsync_Cancelled_Throws()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
-            var cts = new CancellationTokenSource();
-            var task = queue.DequeueAsync(cts.Token);
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Task<int> task = queue.DequeueAsync(cts.Token);
 
             cts.Cancel();
 
@@ -110,9 +108,9 @@ namespace UnitTests
         [Fact]
         public async Task EnqueueAsync_Full_DoesNotComplete()
         {
-            var queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
 
-            var task = queue.EnqueueAsync(7);
+            Task task = queue.EnqueueAsync(7);
 
             await AsyncAssert.NeverCompletesAsync(task);
         }
@@ -120,8 +118,8 @@ namespace UnitTests
         [Fact]
         public async Task EnqueueAsync_SpaceAvailable_Completes()
         {
-            var queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
-            var task = queue.EnqueueAsync(7);
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
+            Task task = queue.EnqueueAsync(7);
 
             await queue.DequeueAsync();
 
@@ -131,9 +129,9 @@ namespace UnitTests
         [Fact]
         public async Task EnqueueAsync_Cancelled_Throws()
         {
-            var queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
-            var cts = new CancellationTokenSource();
-            var task = queue.EnqueueAsync(7, cts.Token);
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Task task = queue.EnqueueAsync(7, cts.Token);
 
             cts.Cancel();
 
@@ -143,7 +141,7 @@ namespace UnitTests
         [Fact]
         public void CompleteAdding_MultipleTimes_DoesNotThrow()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
             queue.CompleteAdding();
@@ -152,9 +150,9 @@ namespace UnitTests
         [Fact]
         public async Task OutputAvailableAsync_NoItemsInQueue_IsNotCompleted()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
 
-            var task = queue.OutputAvailableAsync();
+            Task<bool> task = queue.OutputAvailableAsync();
 
             await AsyncAssert.NeverCompletesAsync(task);
         }
@@ -162,39 +160,39 @@ namespace UnitTests
         [Fact]
         public async Task OutputAvailableAsync_ItemInQueue_ReturnsTrue()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.Enqueue(13);
 
-            var result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync();
             Assert.True(result);
         }
 
         [Fact]
         public async Task OutputAvailableAsync_NoItemsAndCompleted_ReturnsFalse()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
-            var result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync();
             Assert.False(result);
         }
 
         [Fact]
         public async Task OutputAvailableAsync_ItemInQueueAndCompleted_ReturnsTrue()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.Enqueue(13);
             queue.CompleteAdding();
 
-            var result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync();
             Assert.True(result);
         }
 
         [Fact]
         public async Task StandardAsyncSingleConsumerCode()
         {
-            var queue = new AsyncProducerConsumerQueue<int>();
-            var producer = Task.Run(() =>
+            AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
+            Task producer = Task.Run(() =>
             {
                 queue.Enqueue(3);
                 queue.Enqueue(13);
@@ -202,7 +200,7 @@ namespace UnitTests
                 queue.CompleteAdding();
             });
 
-            var results = new List<int>();
+            List<int> results = new List<int>();
             while (await queue.OutputAvailableAsync())
             {
                 results.Add(queue.Dequeue());

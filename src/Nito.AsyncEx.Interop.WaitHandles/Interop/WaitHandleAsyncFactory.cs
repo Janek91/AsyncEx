@@ -47,13 +47,19 @@ namespace Nito.AsyncEx.Interop
         public static Task<bool> FromWaitHandle(WaitHandle handle, TimeSpan timeout, CancellationToken token)
         {
             // Handle synchronous cases.
-            var alreadySignalled = handle.WaitOne(0);
+            bool alreadySignalled = handle.WaitOne(0);
             if (alreadySignalled)
+            {
                 return TaskConstants.BooleanTrue;
+            }
             if (timeout == TimeSpan.Zero)
+            {
                 return TaskConstants.BooleanFalse;
+            }
             if (token.IsCancellationRequested)
+            {
                 return TaskConstants<bool>.Canceled;
+            }
 
             // Register all asynchronous cases.
             return DoFromWaitHandle(handle, timeout, token);
@@ -61,10 +67,12 @@ namespace Nito.AsyncEx.Interop
 
         private static async Task<bool> DoFromWaitHandle(WaitHandle handle, TimeSpan timeout, CancellationToken token)
         {
-            var tcs = new TaskCompletionSource<bool>();
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             using (new ThreadPoolRegistration(handle, timeout, tcs))
-            using (token.Register(state => ((TaskCompletionSource<bool>) state).TrySetCanceled(), tcs, useSynchronizationContext: false))
+            using (token.Register(state => ((TaskCompletionSource<bool>)state).TrySetCanceled(), tcs, useSynchronizationContext: false))
+            {
                 return await tcs.Task.ConfigureAwait(false);
+            }
         }
 
         private sealed class ThreadPoolRegistration : IDisposable

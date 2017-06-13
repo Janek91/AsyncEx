@@ -65,16 +65,22 @@ namespace Nito.AsyncEx
         public static Task<T> Enqueue<T>(this IAsyncWaitQueue<T> @this, object mutex, CancellationToken token)
         {
             if (token.IsCancellationRequested)
+            {
                 return Task.FromCanceled<T>(token);
+            }
 
-            var ret = @this.Enqueue();
+            Task<T> ret = @this.Enqueue();
             if (!token.CanBeCanceled)
+            {
                 return ret;
+            }
 
-            var registration = token.Register(() =>
+            CancellationTokenRegistration registration = token.Register(() =>
             {
                 lock (mutex)
+                {
                     @this.TryCancel(ret, token);
+                }
             }, useSynchronizationContext: false);
             ret.ContinueWith(_ => registration.Dispose(), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
             return ret;
@@ -85,7 +91,7 @@ namespace Nito.AsyncEx
     /// The default wait queue implementation, which uses a double-ended queue.
     /// </summary>
     /// <typeparam name="T">The type of the results. If this isn't needed, use <see cref="Object"/>.</typeparam>
-    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(DefaultAsyncWaitQueue<>.DebugView))]
     public sealed class DefaultAsyncWaitQueue<T> : IAsyncWaitQueue<T>
     {
@@ -103,7 +109,7 @@ namespace Nito.AsyncEx
 
         Task<T> IAsyncWaitQueue<T>.Enqueue()
         {
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
+            TaskCompletionSource<T> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<T>();
             _queue.AddToBack(tcs);
             return tcs.Task;
         }
@@ -115,8 +121,10 @@ namespace Nito.AsyncEx
 
         void IAsyncWaitQueue<T>.DequeueAll(T result)
         {
-            foreach (var source in _queue)
+            foreach (TaskCompletionSource<T> source in _queue)
+            {
                 source.TrySetResult(result);
+            }
             _queue.Clear();
         }
 
@@ -136,8 +144,10 @@ namespace Nito.AsyncEx
 
         void IAsyncWaitQueue<T>.CancelAll(CancellationToken cancellationToken)
         {
-            foreach (var source in _queue)
+            foreach (TaskCompletionSource<T> source in _queue)
+            {
                 source.TrySetCanceled(cancellationToken);
+            }
             _queue.Clear();
         }
 
@@ -156,9 +166,11 @@ namespace Nito.AsyncEx
             {
                 get
                 {
-                    var result = new List<Task<T>>(_queue._queue.Count);
-                    foreach (var entry in _queue._queue)
+                    List<Task<T>> result = new List<Task<T>>(_queue._queue.Count);
+                    foreach (TaskCompletionSource<T> entry in _queue._queue)
+                    {
                         result.Add(entry.Task);
+                    }
                     return result.ToArray();
                 }
             }

@@ -26,8 +26,8 @@ namespace Nito.AsyncEx.Interop
             Action<TDelegate> subscribe, Action<TDelegate> unsubscribe, CancellationToken cancellationToken, bool unsubscribeOnCapturedContext)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<TEventArguments>();
-            var subscription = convert(result => tcs.TrySetResult(result));
+            TaskCompletionSource<TEventArguments> tcs = TaskCompletionSourceExtensions.CreateAsyncTaskSource<TEventArguments>();
+            TDelegate subscription = convert(result => tcs.TrySetResult(result));
             try
             {
                 using (cancellationToken.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false))

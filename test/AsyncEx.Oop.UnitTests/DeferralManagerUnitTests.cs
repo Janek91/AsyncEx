@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
-using Xunit;
 using Nito.AsyncEx.Testing;
+using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Oop.UnitTests
 {
     public class DeferralManagerUnitTests
     {
         [Fact]
         public void NoDeferrals_IsCompleted()
         {
-            var dm = new DeferralManager();
-            var task = dm.WaitForDeferralsAsync();
+            DeferralManager dm = new DeferralManager();
+            Task task = dm.WaitForDeferralsAsync();
             Assert.True(task.IsCompleted);
         }
 
         [Fact]
         public async Task IncompleteDeferral_PreventsCompletion()
         {
-            var dm = new DeferralManager();
-            var deferral = dm.DeferralSource.GetDeferral();
+            DeferralManager dm = new DeferralManager();
+            IDisposable deferral = dm.DeferralSource.GetDeferral();
             await AsyncAssert.NeverCompletesAsync(dm.WaitForDeferralsAsync());
         }
 
         [Fact]
         public async Task DeferralCompleted_Completes()
         {
-            var dm = new DeferralManager();
-            var deferral = dm.DeferralSource.GetDeferral();
-            var task = dm.WaitForDeferralsAsync();
+            DeferralManager dm = new DeferralManager();
+            IDisposable deferral = dm.DeferralSource.GetDeferral();
+            Task task = dm.WaitForDeferralsAsync();
             Assert.False(task.IsCompleted);
             deferral.Dispose();
             await task;
@@ -38,10 +38,10 @@ namespace UnitTests
         [Fact]
         public async Task MultipleDeferralsWithOneIncomplete_PreventsCompletion()
         {
-            var dm = new DeferralManager();
-            var deferral1 = dm.DeferralSource.GetDeferral();
-            var deferral2 = dm.DeferralSource.GetDeferral();
-            var task = dm.WaitForDeferralsAsync();
+            DeferralManager dm = new DeferralManager();
+            IDisposable deferral1 = dm.DeferralSource.GetDeferral();
+            IDisposable deferral2 = dm.DeferralSource.GetDeferral();
+            Task task = dm.WaitForDeferralsAsync();
             deferral1.Dispose();
             await AsyncAssert.NeverCompletesAsync(task);
         }
@@ -49,10 +49,10 @@ namespace UnitTests
         [Fact]
         public async Task TwoDeferralsWithOneCompletedTwice_PreventsCompletion()
         {
-            var dm = new DeferralManager();
-            var deferral1 = dm.DeferralSource.GetDeferral();
-            var deferral2 = dm.DeferralSource.GetDeferral();
-            var task = dm.WaitForDeferralsAsync();
+            DeferralManager dm = new DeferralManager();
+            IDisposable deferral1 = dm.DeferralSource.GetDeferral();
+            IDisposable deferral2 = dm.DeferralSource.GetDeferral();
+            Task task = dm.WaitForDeferralsAsync();
             deferral1.Dispose();
             deferral1.Dispose();
             await AsyncAssert.NeverCompletesAsync(task);
@@ -61,10 +61,10 @@ namespace UnitTests
         [Fact]
         public async Task MultipleDeferralsWithAllCompleted_Completes()
         {
-            var dm = new DeferralManager();
-            var deferral1 = dm.DeferralSource.GetDeferral();
-            var deferral2 = dm.DeferralSource.GetDeferral();
-            var task = dm.WaitForDeferralsAsync();
+            DeferralManager dm = new DeferralManager();
+            IDisposable deferral1 = dm.DeferralSource.GetDeferral();
+            IDisposable deferral2 = dm.DeferralSource.GetDeferral();
+            Task task = dm.WaitForDeferralsAsync();
             deferral1.Dispose();
             deferral2.Dispose();
             await task;
@@ -73,10 +73,10 @@ namespace UnitTests
         [Fact]
         public async Task CompletedDeferralFollowedByIncompleteDeferral_PreventsCompletion()
         {
-            var dm = new DeferralManager();
+            DeferralManager dm = new DeferralManager();
             dm.DeferralSource.GetDeferral().Dispose();
-            var deferral = dm.DeferralSource.GetDeferral();
-            var task = dm.WaitForDeferralsAsync();
+            IDisposable deferral = dm.DeferralSource.GetDeferral();
+            Task task = dm.WaitForDeferralsAsync();
             await AsyncAssert.NeverCompletesAsync(task);
         }
     }

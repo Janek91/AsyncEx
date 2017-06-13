@@ -1,22 +1,19 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using Xunit;
 using Nito.AsyncEx.Testing;
+using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Context.UnitTests
 {
     public class AsyncContextUnitTests
     {
         [Fact]
         public void AsyncContext_StaysOnSameThread()
         {
-            var testThread = Thread.CurrentThread.ManagedThreadId;
-            var contextThread = AsyncContext.Run(() => Thread.CurrentThread.ManagedThreadId);
+            int testThread = Thread.CurrentThread.ManagedThreadId;
+            int contextThread = AsyncContext.Run(() => Thread.CurrentThread.ManagedThreadId);
             Assert.Equal(testThread, contextThread);
         }
 
@@ -36,7 +33,7 @@ namespace UnitTests
         public void Run_FuncThatCallsAsyncVoid_BlocksUntilCompletion()
         {
             bool resumed = false;
-            var result = AsyncContext.Run((Func<int>)(() =>
+            int result = AsyncContext.Run((Func<int>)(() =>
             {
                 Action asyncVoid = async () =>
                 {
@@ -66,7 +63,7 @@ namespace UnitTests
         public void Run_AsyncTaskWithResult_BlocksUntilCompletion()
         {
             bool resumed = false;
-            var result = AsyncContext.Run(async () =>
+            int result = AsyncContext.Run(async () =>
             {
                 await Task.Yield();
                 resumed = true;
@@ -86,7 +83,7 @@ namespace UnitTests
         public void Current_FromAsyncContext_IsAsyncContext()
         {
             AsyncContext observedContext = null;
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             context.Factory.Run(() =>
             {
                 observedContext = AsyncContext.Current;
@@ -101,7 +98,7 @@ namespace UnitTests
         public void SynchronizationContextCurrent_FromAsyncContext_IsAsyncContextSynchronizationContext()
         {
             SynchronizationContext observedContext = null;
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             context.Factory.Run(() =>
             {
                 observedContext = SynchronizationContext.Current;
@@ -116,7 +113,7 @@ namespace UnitTests
         public void TaskSchedulerCurrent_FromAsyncContext_IsThreadPoolTaskScheduler()
         {
             TaskScheduler observedScheduler = null;
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             context.Factory.Run(() =>
             {
                 observedScheduler = TaskScheduler.Current;
@@ -130,7 +127,7 @@ namespace UnitTests
         [Fact]
         public void TaskScheduler_MaximumConcurrency_IsOne()
         {
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             Assert.Equal(1, context.Scheduler.MaximumConcurrencyLevel);
         }
 
@@ -165,9 +162,9 @@ namespace UnitTests
         [Fact]
         public async Task SynchronizationContext_Send_ExecutesSynchronously()
         {
-            using (var thread = new AsyncContextThread())
+            using (AsyncContextThread thread = new AsyncContextThread())
             {
-                var synchronizationContext = await thread.Factory.Run(() => SynchronizationContext.Current);
+                SynchronizationContext synchronizationContext = await thread.Factory.Run(() => SynchronizationContext.Current);
                 int value = 0;
                 synchronizationContext.Send(_ => { value = 13; }, null);
                 Assert.Equal(13, value);
@@ -177,7 +174,7 @@ namespace UnitTests
         [Fact]
         public async Task SynchronizationContext_Send_ExecutesInlineIfNecessary()
         {
-            using (var thread = new AsyncContextThread())
+            using (AsyncContextThread thread = new AsyncContextThread())
             {
                 int value = 0;
                 await thread.Factory.Run(() =>
@@ -193,11 +190,11 @@ namespace UnitTests
         public void Task_AfterExecute_NeverRuns()
         {
             int value = 0;
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             context.Factory.Run(() => { value = 1; });
             context.Execute();
 
-            var task = context.Factory.Run(() => { value = 2; });
+            Task task = context.Factory.Run(() => { value = 2; });
 
             task.ContinueWith(_ => { throw new Exception("Should not run"); }, TaskScheduler.Default);
             Assert.Equal(1, value);
@@ -206,8 +203,8 @@ namespace UnitTests
         [Fact]
         public void SynchronizationContext_IsEqualToCopyOfItself()
         {
-            var synchronizationContext1 = AsyncContext.Run(() => SynchronizationContext.Current);
-            var synchronizationContext2 = synchronizationContext1.CreateCopy();
+            SynchronizationContext synchronizationContext1 = AsyncContext.Run(() => SynchronizationContext.Current);
+            SynchronizationContext synchronizationContext2 = synchronizationContext1.CreateCopy();
             Assert.Equal(synchronizationContext1.GetHashCode(), synchronizationContext2.GetHashCode());
             Assert.True(synchronizationContext1.Equals(synchronizationContext2));
             Assert.False(synchronizationContext1.Equals(new SynchronizationContext()));
@@ -216,7 +213,7 @@ namespace UnitTests
         [Fact]
         public void Id_IsEqualToTaskSchedulerId()
         {
-            var context = new AsyncContext();
+            AsyncContext context = new AsyncContext();
             Assert.Equal(context.Scheduler.Id, context.Id);
         }
     }

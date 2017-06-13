@@ -1,6 +1,5 @@
-﻿using System;
-using System.Threading;
-using Nito.AsyncEx.Synchronous;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nito.AsyncEx
 {
@@ -59,7 +58,7 @@ namespace Nito.AsyncEx
                 }
                 else
                 {
-                    var task = _context._taskFactory.Run(() => d(state));
+                    Task task = _context._taskFactory.Run(() => d(state));
                     task.WaitAndUnwrapException();
                 }
             }
@@ -105,9 +104,11 @@ namespace Nito.AsyncEx
             /// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.</returns>
             public override bool Equals(object obj)
             {
-                var other = obj as AsyncContextSynchronizationContext;
+                AsyncContextSynchronizationContext other = obj as AsyncContextSynchronizationContext;
                 if (other == null)
+                {
                     return false;
+                }
                 return (_context == other._context);
             }
         }

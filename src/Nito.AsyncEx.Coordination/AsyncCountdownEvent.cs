@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,7 +49,9 @@ namespace Nito.AsyncEx
             get
             {
                 lock (_mre)
+                {
                     return _count;
+                }
             }
         }
 
@@ -96,16 +97,22 @@ namespace Nito.AsyncEx
         private void ModifyCount(long difference, bool add)
         {
             if (difference == 0)
+            {
                 return;
+            }
             lock (_mre)
             {
-                var oldCount = _count;
+                long oldCount = _count;
                 checked
                 {
                     if (add)
+                    {
                         _count += difference;
+                    }
                     else
+                    {
                         _count -= difference;
+                    }
                 }
                 if (oldCount == 0)
                 {

@@ -1,23 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Nito.AsyncEx;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
-namespace UnitTests
+namespace AsyncEx.Tasks.UnitTests
 {
     public class TaskFactoryExtensionsUnitTests
     {
         [Fact]
         public async Task RunAction_WithFactoryScheduler_UsesFactoryScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var factory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory factory = new TaskFactory(scheduler);
             TaskScheduler result = null;
 
-            var task = factory.Run(() =>
+            Task task = factory.Run(() =>
             {
                 result = TaskScheduler.Current;
             });
@@ -30,8 +26,8 @@ namespace UnitTests
         [Fact]
         public async Task RunAction_WithCurrentScheduler_UsesDefaultScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var testFactory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory testFactory = new TaskFactory(scheduler);
             Task task = null;
             TaskScheduler result = null;
 
@@ -53,11 +49,11 @@ namespace UnitTests
         [Fact]
         public async Task RunFunc_WithFactoryScheduler_UsesFactoryScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var factory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory factory = new TaskFactory(scheduler);
 
-            var task = factory.Run(() => TaskScheduler.Current);
-            var result = await task;
+            Task<TaskScheduler> task = factory.Run(() => TaskScheduler.Current);
+            TaskScheduler result = await task;
 
             Assert.Same(scheduler, result);
             Assert.True((task.CreationOptions & TaskCreationOptions.DenyChildAttach) == TaskCreationOptions.DenyChildAttach);
@@ -66,8 +62,8 @@ namespace UnitTests
         [Fact]
         public async Task RunFunc_WithCurrentScheduler_UsesDefaultScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var testFactory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory testFactory = new TaskFactory(scheduler);
             Task<TaskScheduler> task = null;
             TaskScheduler result = null;
 
@@ -86,12 +82,12 @@ namespace UnitTests
         [Fact]
         public async Task RunAsyncAction_WithFactoryScheduler_UsesFactoryScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var factory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory factory = new TaskFactory(scheduler);
             TaskScheduler result = null;
             TaskScheduler resultAfterAwait = null;
 
-            var task = factory.Run(async () =>
+            Task task = factory.Run(async () =>
             {
                 result = TaskScheduler.Current;
                 await Task.Yield();
@@ -106,8 +102,8 @@ namespace UnitTests
         [Fact]
         public async Task RunAsyncAction_WithCurrentScheduler_UsesDefaultScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var testFactory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory testFactory = new TaskFactory(scheduler);
             TaskScheduler result = null;
             TaskScheduler resultAfterAwait = null;
 
@@ -130,11 +126,11 @@ namespace UnitTests
         [Fact]
         public async Task RunAsyncFunc_WithFactoryScheduler_UsesFactoryScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var factory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory factory = new TaskFactory(scheduler);
             TaskScheduler result = null;
 
-            var resultAfterAwait = await factory.Run(async () =>
+            TaskScheduler resultAfterAwait = await factory.Run(async () =>
             {
                 result = TaskScheduler.Current;
                 await Task.Yield();
@@ -148,8 +144,8 @@ namespace UnitTests
         [Fact]
         public async Task RunAsyncFunc_WithCurrentScheduler_UsesDefaultScheduler()
         {
-            var scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
-            var testFactory = new TaskFactory(scheduler);
+            TaskScheduler scheduler = new ConcurrentExclusiveSchedulerPair().ExclusiveScheduler;
+            TaskFactory testFactory = new TaskFactory(scheduler);
             TaskScheduler result = null;
             TaskScheduler resultAfterAwait = null;
 

@@ -1,5 +1,4 @@
-﻿using Nito.AsyncEx.Synchronous;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,9 +45,13 @@ namespace Nito.AsyncEx
             get
             {
                 if (_locksHeld == 0)
+                {
                     return State.Unlocked;
+                }
                 if (_locksHeld == -1)
+                {
                     return State.WriteLocked;
+                }
                 return State.ReadLocked;
             }
         }
@@ -235,7 +238,9 @@ namespace Nito.AsyncEx
         private void ReleaseWaiters()
         {
             if (_locksHeld != 0)
+            {
                 return;
+            }
 
             // Give priority to writers.
             if (!_writerQueue.IsEmpty)

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx.Synchronous;
 
 namespace Nito.AsyncEx
 {
@@ -70,7 +68,9 @@ namespace Nito.AsyncEx
             lock (_mutex)
             {
                 if (!_queue.IsEmpty)
+                {
                     _queue.Dequeue();
+                }
             }
         }
 
@@ -98,7 +98,7 @@ namespace Nito.AsyncEx
                 task = _queue.Enqueue(_mutex, cancellationToken);
 
                 // Attach to the signal or cancellation.
-                var ret = WaitAndRetakeLockAsync(task, _asyncLock);
+                Task ret = WaitAndRetakeLockAsync(task, _asyncLock);
 
                 // Release the lock while we are waiting.
                 _asyncLock.ReleaseLock();
