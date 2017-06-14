@@ -17,7 +17,7 @@ namespace AsyncEx.Coordination.UnitTests
             await mutex.LockAsync();
             Task task = cv.WaitAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace AsyncEx.Coordination.UnitTests
                 {
                     cv.Notify();
                 }
-            });
+            }).ConfigureAwait(false);
             await task;
         }
 
@@ -49,12 +49,12 @@ namespace AsyncEx.Coordination.UnitTests
                 {
                     cv.Notify();
                 }
-            });
+            }).ConfigureAwait(false);
 
             await mutex.LockAsync();
             Task task = cv.WaitAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace AsyncEx.Coordination.UnitTests
                 {
                     cv.NotifyAll();
                 }
-            });
+            }).ConfigureAwait(false);
 
             await task1;
             await task2;
@@ -98,10 +98,10 @@ namespace AsyncEx.Coordination.UnitTests
                 {
                     cv.Notify();
                 }
-            });
+            }).ConfigureAwait(false);
 
             await task1;
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]

@@ -31,7 +31,7 @@ namespace AsyncEx.Tasks.UnitTests
         {
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             tcs.TryCompleteFromCompletedTask(TaskConstants<int>.Canceled);
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => tcs.Task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => tcs.Task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace AsyncEx.Tasks.UnitTests
 
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             tcs.TryCompleteFromCompletedTask(source.Task);
-            await AsyncAssert.ThrowsAsync<NotImplementedException>(() => tcs.Task);
+            await AsyncAssert.ThrowsAsync<NotImplementedException>(() => tcs.Task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace AsyncEx.Tasks.UnitTests
         {
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             tcs.TryCompleteFromCompletedTask(TaskConstants.Canceled, () => -1);
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => tcs.Task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => tcs.Task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace AsyncEx.Tasks.UnitTests
         {
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             tcs.TryCompleteFromCompletedTask(Task.FromException(new NotImplementedException()), () => -1);
-            await AsyncAssert.ThrowsAsync<NotImplementedException>(() => tcs.Task);
+            await AsyncAssert.ThrowsAsync<NotImplementedException>(() => tcs.Task).ConfigureAwait(false);
         }
 
         [Fact]

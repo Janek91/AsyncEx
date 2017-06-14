@@ -85,6 +85,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Requests the thread to exit.
         /// </summary>
+        /// <param name="context">The context for the disposal operation.</param>
         protected override void Dispose(AsyncContext context)
         {
             AllowThreadToExit();

@@ -31,7 +31,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.WriterLockAsync();
             Task<IDisposable> task = rwl.WriterLockAsync().AsTask();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.WriterLockAsync();
             Task<IDisposable> task = rwl.ReaderLockAsync().AsTask();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncReaderWriterLock rwl = new AsyncReaderWriterLock();
             await rwl.ReaderLockAsync();
             Task<IDisposable> task = rwl.WriterLockAsync().AsTask();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -143,7 +143,7 @@ namespace AsyncEx.Coordination.UnitTests
                 CancellationTokenSource cts = new CancellationTokenSource();
                 Task<IDisposable> task = rwl.WriterLockAsync(cts.Token).AsTask();
                 cts.Cancel();
-                await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+                await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             }
 
             await rwl.WriterLockAsync();
@@ -158,7 +158,7 @@ namespace AsyncEx.Coordination.UnitTests
                 CancellationTokenSource cts = new CancellationTokenSource();
                 Task<IDisposable> task = rwl.ReaderLockAsync(cts.Token).AsTask();
                 cts.Cancel();
-                await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+                await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             }
 
             await rwl.ReaderLockAsync();
@@ -176,7 +176,7 @@ namespace AsyncEx.Coordination.UnitTests
             }
 
             await writeLock;
-            await AsyncAssert.NeverCompletesAsync(readLock);
+            await AsyncAssert.NeverCompletesAsync(readLock).ConfigureAwait(false);
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace AsyncEx.Coordination.UnitTests
             }
 
             await Task.WhenAll(AsyncAssert.NeverCompletesAsync(writeLock),
-                AsyncAssert.NeverCompletesAsync(readLock));
+                AsyncAssert.NeverCompletesAsync(readLock)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -204,13 +204,13 @@ namespace AsyncEx.Coordination.UnitTests
             {
                 readKeys.Add(rwl.ReaderLock());
             }
-            Task writeTask = Task.Run(() => { rwl.WriterLock().Dispose(); });
+            Task writeTask = Task.Run(() => rwl.WriterLock().Dispose());
             List<Task> readTasks = new List<Task>();
             for (int i = 0; i != 100; ++i)
             {
                 readTasks.Add(Task.Run(() => rwl.ReaderLock().Dispose()));
             }
-            await Task.Delay(1000);
+            await Task.Delay(1000).ConfigureAwait(false);
             foreach (IDisposable readKey in readKeys)
             {
                 readKey.Dispose();

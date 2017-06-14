@@ -69,7 +69,7 @@ namespace Nito.AsyncEx
         /// </summary>
         public bool IsPaused
         {
-            get { return _mre != null && !_mre.IsSet; }
+            get { return _mre?.IsSet == false; }
         }
 
         /// <summary>
@@ -102,10 +102,7 @@ namespace Nito.AsyncEx
         /// </summary>
         public void WaitWhilePaused()
         {
-            if (_mre != null)
-            {
-                _mre.Wait();
-            }
+            _mre?.Wait();
         }
 
         /// <summary>
@@ -114,10 +111,7 @@ namespace Nito.AsyncEx
         /// <param name="token">The cancellation token to observe. If the token is already canceled, this method will first check if the pause token is unpaused, and will return without an exception in that case.</param>
         public void WaitWhilePaused(CancellationToken token)
         {
-            if (_mre != null)
-            {
-                _mre.Wait(token);
-            }
+            _mre?.Wait(token);
         }
     }
 }

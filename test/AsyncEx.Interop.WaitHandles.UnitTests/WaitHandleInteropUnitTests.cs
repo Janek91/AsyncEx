@@ -119,7 +119,7 @@ namespace AsyncEx.Interop.WaitHandles.UnitTests
             Task task = WaitHandleAsyncFactory.FromWaitHandle(mre, cts.Token);
             Assert.False(task.IsCompleted);
             cts.Cancel();
-            await AsyncAssert.CancelsAsync(task);
+            await AsyncAssert.CancelsAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace AsyncEx.Interop.WaitHandles.UnitTests
             Task<bool> task = WaitHandleAsyncFactory.FromWaitHandle(mre, Timeout.InfiniteTimeSpan, cts.Token);
             Assert.False(task.IsCompleted);
             cts.Cancel();
-            await AsyncAssert.CancelsAsync(task);
+            await AsyncAssert.CancelsAsync(task).ConfigureAwait(false);
         }
     }
 }

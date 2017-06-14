@@ -50,7 +50,7 @@ namespace AsyncEx.Coordination.UnitTests
             Task<object> task2 = queue.Enqueue();
             queue.Dequeue();
             Assert.True(task1.IsCompleted);
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace AsyncEx.Coordination.UnitTests
             CancellationTokenSource cts = new CancellationTokenSource();
             Task<object> task = queue.Enqueue(new object(), cts.Token);
             cts.Cancel();
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace AsyncEx.Coordination.UnitTests
             CancellationTokenSource cts = new CancellationTokenSource();
             Task<object> task = queue.Enqueue(new object(), cts.Token);
             cts.Cancel();
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.True(queue.IsEmpty);
         }
 

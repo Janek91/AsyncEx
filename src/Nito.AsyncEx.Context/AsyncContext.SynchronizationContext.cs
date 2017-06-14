@@ -11,29 +11,18 @@ namespace Nito.AsyncEx
         private sealed class AsyncContextSynchronizationContext : SynchronizationContext
         {
             /// <summary>
-            /// The async context.
-            /// </summary>
-            private readonly AsyncContext _context;
-
-            /// <summary>
             /// Initializes a new instance of the <see cref="AsyncContextSynchronizationContext"/> class.
             /// </summary>
             /// <param name="context">The async context.</param>
             public AsyncContextSynchronizationContext(AsyncContext context)
             {
-                _context = context;
+                Context = context;
             }
 
             /// <summary>
             /// Gets the async context.
             /// </summary>
-            public AsyncContext Context
-            {
-                get
-                {
-                    return _context;
-                }
-            }
+            public AsyncContext Context { get; }
 
             /// <summary>
             /// Dispatches an asynchronous message to the async context. If all tasks have been completed and the outstanding asynchronous operation count is zero, then this method has undefined behavior.
@@ -42,7 +31,7 @@ namespace Nito.AsyncEx
             /// <param name="state">The object passed to the delegate.</param>
             public override void Post(SendOrPostCallback d, object state)
             {
-                _context.Enqueue(_context._taskFactory.Run(() => d(state)), true);
+                Context.Enqueue(Context.Factory.Run(() => d(state)), true);
             }
 
             /// <summary>
@@ -52,13 +41,13 @@ namespace Nito.AsyncEx
             /// <param name="state">The object passed to the delegate.</param>
             public override void Send(SendOrPostCallback d, object state)
             {
-                if (AsyncContext.Current == _context)
+                if (AsyncContext.Current == Context)
                 {
                     d(state);
                 }
                 else
                 {
-                    Task task = _context._taskFactory.Run(() => d(state));
+                    Task task = Context.Factory.Run(() => d(state));
                     task.WaitAndUnwrapException();
                 }
             }
@@ -68,7 +57,7 @@ namespace Nito.AsyncEx
             /// </summary>
             public override void OperationStarted()
             {
-                _context.OperationStarted();
+                Context.OperationStarted();
             }
 
             /// <summary>
@@ -76,7 +65,7 @@ namespace Nito.AsyncEx
             /// </summary>
             public override void OperationCompleted()
             {
-                _context.OperationCompleted();
+                Context.OperationCompleted();
             }
 
             /// <summary>
@@ -85,7 +74,7 @@ namespace Nito.AsyncEx
             /// <returns>A new <see cref="T:System.Threading.SynchronizationContext"/> object.</returns>
             public override SynchronizationContext CreateCopy()
             {
-                return new AsyncContextSynchronizationContext(_context);
+                return new AsyncContextSynchronizationContext(Context);
             }
 
             /// <summary>
@@ -94,7 +83,7 @@ namespace Nito.AsyncEx
             /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
             public override int GetHashCode()
             {
-                return _context.GetHashCode();
+                return Context.GetHashCode();
             }
 
             /// <summary>
@@ -109,7 +98,7 @@ namespace Nito.AsyncEx
                 {
                     return false;
                 }
-                return (_context == other._context);
+                return Context == other.Context;
             }
         }
     }

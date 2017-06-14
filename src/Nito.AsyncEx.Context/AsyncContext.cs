@@ -32,11 +32,6 @@ namespace Nito.AsyncEx
         private readonly AsyncContextTaskScheduler _taskScheduler;
 
         /// <summary>
-        /// The <see cref="TaskFactory"/> for this <see cref="AsyncContext"/>.
-        /// </summary>
-        private readonly TaskFactory _taskFactory;
-
-        /// <summary>
         /// The number of outstanding operations, including actions in the queue.
         /// </summary>
         private int _outstandingOperations;
@@ -50,7 +45,7 @@ namespace Nito.AsyncEx
             _queue = new TaskQueue();
             _synchronizationContext = new AsyncContextSynchronizationContext(this);
             _taskScheduler = new AsyncContextTaskScheduler(this);
-            _taskFactory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler, TaskContinuationOptions.HideScheduler, _taskScheduler);
+            Factory = new TaskFactory(CancellationToken.None, TaskCreationOptions.HideScheduler, TaskContinuationOptions.HideScheduler, _taskScheduler);
         }
 
         /// <summary>
@@ -135,7 +130,7 @@ namespace Nito.AsyncEx
 
             using (AsyncContext context = new AsyncContext())
             {
-                Task task = context._taskFactory.Run(action);
+                Task task = context.Factory.Run(action);
                 context.Execute();
                 task.WaitAndUnwrapException();
             }
@@ -155,7 +150,7 @@ namespace Nito.AsyncEx
 
             using (AsyncContext context = new AsyncContext())
             {
-                Task<TResult> task = context._taskFactory.Run(action);
+                Task<TResult> task = context.Factory.Run(action);
                 context.Execute();
                 return task.WaitAndUnwrapException();
             }
@@ -176,7 +171,7 @@ namespace Nito.AsyncEx
             using (AsyncContext context = new AsyncContext())
             {
                 context.OperationStarted();
-                Task task = context._taskFactory.Run(action).ContinueWith(t =>
+                Task task = context.Factory.Run(action).ContinueWith(t =>
                 {
                     context.OperationCompleted();
                     t.WaitAndUnwrapException();
@@ -203,7 +198,7 @@ namespace Nito.AsyncEx
             using (AsyncContext context = new AsyncContext())
             {
                 context.OperationStarted();
-                Task<TResult> task = context._taskFactory.Run(action).ContinueWith(t =>
+                Task<TResult> task = context.Factory.Run(action).ContinueWith(t =>
                 {
                     context.OperationCompleted();
                     return t.WaitAndUnwrapException();
@@ -247,7 +242,7 @@ namespace Nito.AsyncEx
         /// Gets the <see cref="TaskFactory"/> for this <see cref="AsyncContext"/>. Note that this factory has the <see cref="TaskCreationOptions.HideScheduler"/> option set. Be careful with async delegates; you may need to call <see cref="M:System.Threading.SynchronizationContext.OperationStarted"/> and <see cref="M:System.Threading.SynchronizationContext.OperationCompleted"/> to prevent early termination of this <see cref="AsyncContext"/>.
         /// </summary>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        public TaskFactory Factory => _taskFactory;
+        public TaskFactory Factory { get; }
 
         [DebuggerNonUserCode]
         internal sealed class DebugView

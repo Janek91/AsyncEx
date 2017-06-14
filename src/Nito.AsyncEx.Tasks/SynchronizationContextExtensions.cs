@@ -28,7 +28,7 @@ namespace Nito.AsyncEx
         public static T Send<T>(this SynchronizationContext @this, Func<T> action)
         {
             T result = default(T);
-            @this.Send(state => { result = ((Func<T>)state)(); }, action);
+            @this.Send(state => result = ((Func<T>)state)(), action);
             return result;
         }
 

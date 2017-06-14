@@ -33,9 +33,9 @@ namespace AsyncEx.Coordination.UnitTests
         {
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 3, 5, 7 });
 
-            int result1 = await queue.DequeueAsync();
-            int result2 = await queue.DequeueAsync();
-            int result3 = await queue.DequeueAsync();
+            int result1 = await queue.DequeueAsync().ConfigureAwait(false);
+            int result2 = await queue.DequeueAsync().ConfigureAwait(false);
+            int result3 = await queue.DequeueAsync().ConfigureAwait(false);
 
             Assert.Equal(3, result1);
             Assert.Equal(5, result2);
@@ -47,8 +47,8 @@ namespace AsyncEx.Coordination.UnitTests
         {
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
 
-            await queue.EnqueueAsync(3);
-            int result = await queue.DequeueAsync();
+            await queue.EnqueueAsync(3).ConfigureAwait(false);
+            int result = await queue.DequeueAsync().ConfigureAwait(false);
 
             Assert.Equal(3, result);
         }
@@ -59,7 +59,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.EnqueueAsync(3));
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.EnqueueAsync(3)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.DequeueAsync());
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(() => queue.DequeueAsync()).ConfigureAwait(false);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task<int> task = queue.DequeueAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             Task<int> task = queue.DequeueAsync();
 
-            await queue.EnqueueAsync(13);
+            await queue.EnqueueAsync(13).ConfigureAwait(false);
             int result = await task;
 
             Assert.Equal(13, result);
@@ -102,7 +102,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task task = queue.EnqueueAsync(7);
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>(new[] { 13 }, 1);
             Task task = queue.EnqueueAsync(7);
 
-            await queue.DequeueAsync();
+            await queue.DequeueAsync().ConfigureAwait(false);
 
             await task;
         }
@@ -135,7 +135,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task<bool> task = queue.OutputAvailableAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.Enqueue(13);
 
-            bool result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync().ConfigureAwait(false);
             Assert.True(result);
         }
 
@@ -173,7 +173,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncProducerConsumerQueue<int> queue = new AsyncProducerConsumerQueue<int>();
             queue.CompleteAdding();
 
-            bool result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync().ConfigureAwait(false);
             Assert.False(result);
         }
 
@@ -184,7 +184,7 @@ namespace AsyncEx.Coordination.UnitTests
             queue.Enqueue(13);
             queue.CompleteAdding();
 
-            bool result = await queue.OutputAvailableAsync();
+            bool result = await queue.OutputAvailableAsync().ConfigureAwait(false);
             Assert.True(result);
         }
 
@@ -201,7 +201,7 @@ namespace AsyncEx.Coordination.UnitTests
             });
 
             List<int> results = new List<int>();
-            while (await queue.OutputAvailableAsync())
+            while (await queue.OutputAvailableAsync().ConfigureAwait(false))
             {
                 results.Add(queue.Dequeue());
             }

@@ -74,7 +74,7 @@ namespace AsyncEx.Coordination.UnitTests
             {
                 monitor.Pulse();
             }
-            await Task.WhenAny(task1, task2);
+            await Task.WhenAny(task1, task2).ConfigureAwait(false);
             int result = Interlocked.CompareExchange(ref completed[0], 0, 0);
 
             Assert.Equal(1, result);
@@ -117,7 +117,7 @@ namespace AsyncEx.Coordination.UnitTests
             {
                 monitor.PulseAll();
             }
-            await Task.WhenAll(task1, task2);
+            await Task.WhenAll(task1, task2).ConfigureAwait(false);
             int result = Interlocked.CompareExchange(ref completed[0], 0, 0);
 
             Assert.Equal(2, result);

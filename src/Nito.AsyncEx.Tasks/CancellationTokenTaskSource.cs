@@ -7,6 +7,8 @@ namespace Nito.AsyncEx
     /// <summary>
     /// Holds the task for a cancellation token, as well as the token registration. The registration is disposed when this instance is disposed.
     /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="System.IDisposable" />
     public sealed class CancellationTokenTaskSource<T> : IDisposable
     {
         /// <summary>
@@ -33,7 +35,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Gets the task for the source cancellation token.
         /// </summary>
-        public Task<T> Task { get; private set; }
+        public Task<T> Task { get; }
 
         /// <summary>
         /// Disposes the cancellation token registration, if any. Note that this may cause <see cref="Task"/> to never complete.

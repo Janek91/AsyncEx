@@ -29,11 +29,17 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Queues work to the task factory and returns a <see cref="Task{TResult}"/> representing that work. If the task factory does not specify a task scheduler, the thread pool task scheduler is used.
+        /// Queues work to the task factory and returns a <see cref="Task{TResult}" /> representing that work. If the task factory does not specify a task scheduler, the thread pool task scheduler is used.
         /// </summary>
-        /// <param name="this">The <see cref="TaskFactory"/>. May not be <c>null</c>.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="this">The <see cref="TaskFactory" />. May not be <c>null</c>.</param>
         /// <param name="action">The action delegate to execute. May not be <c>null</c>.</param>
-        /// <returns>The started task.</returns>
+        /// <returns>
+        /// The started task.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">this
+        /// or
+        /// action</exception>
         public static Task<TResult> Run<TResult>(this TaskFactory @this, Func<TResult> action)
         {
             if (@this == null)
@@ -69,11 +75,17 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Queues work to the task factory and returns a proxy <see cref="Task{TResult}"/> representing that work. If the task factory does not specify a task scheduler, the thread pool task scheduler is used.
+        /// Queues work to the task factory and returns a proxy <see cref="Task{TResult}" /> representing that work. If the task factory does not specify a task scheduler, the thread pool task scheduler is used.
         /// </summary>
-        /// <param name="this">The <see cref="TaskFactory"/>. May not be <c>null</c>.</param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="this">The <see cref="TaskFactory" />. May not be <c>null</c>.</param>
         /// <param name="action">The action delegate to execute. May not be <c>null</c>.</param>
-        /// <returns>The started task.</returns>
+        /// <returns>
+        /// The started task.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">this
+        /// or
+        /// action</exception>
         public static Task<TResult> Run<TResult>(this TaskFactory @this, Func<Task<TResult>> action)
         {
             if (@this == null)

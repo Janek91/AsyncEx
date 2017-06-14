@@ -14,7 +14,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task task = mre.WaitAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task task = Task.Run(() => mre.Wait());
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             mre.Set();
             Task task = mre.WaitAsync();
-            
+
             Assert.True(task.IsCompleted);
         }
 
@@ -53,7 +53,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncManualResetEvent mre = new AsyncManualResetEvent(true);
 
             Task task = mre.WaitAsync();
-            
+
             Assert.True(task.IsCompleted);
         }
 
@@ -73,7 +73,7 @@ namespace AsyncEx.Coordination.UnitTests
             mre.Set();
             Task task1 = mre.WaitAsync();
             Task task2 = mre.WaitAsync();
-            
+
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
         }
@@ -95,7 +95,7 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task task1 = mre.WaitAsync();
             Task task2 = mre.WaitAsync();
-            
+
             Assert.True(task1.IsCompleted);
             Assert.True(task2.IsCompleted);
         }
@@ -118,7 +118,7 @@ namespace AsyncEx.Coordination.UnitTests
             mre.Reset();
             Task task = mre.WaitAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace AsyncEx.Coordination.UnitTests
             mre.Reset();
             Task task = Task.Run(() => mre.Wait());
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]

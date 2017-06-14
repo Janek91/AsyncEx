@@ -20,11 +20,6 @@ namespace Nito.AsyncEx
     public sealed class DeferralManager
     {
         /// <summary>
-        /// The deferral source for deferrals managed by this manager.
-        /// </summary>
-        private readonly IDeferralSource _source;
-
-        /// <summary>
         /// The lock protecting <see cref="_ce"/>.
         /// </summary>
         private readonly object _mutex;
@@ -39,7 +34,7 @@ namespace Nito.AsyncEx
         /// </summary>
         public DeferralManager()
         {
-            _source = new ManagedDeferralSource(this);
+            DeferralSource = new ManagedDeferralSource(this);
             _mutex = new object();
         }
 
@@ -75,7 +70,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Gets a source for deferrals managed by this deferral manager. This is generally used to implement <see cref="IDeferralSource"/> for event argument types.
         /// </summary>
-        public IDeferralSource DeferralSource { get { return _source; } }
+        public IDeferralSource DeferralSource { get; }
 
         /// <summary>
         /// Notifies the manager that all deferral requests have been made, and returns a task that is completed when all deferrals have completed.

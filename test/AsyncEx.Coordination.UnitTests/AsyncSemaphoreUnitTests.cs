@@ -16,7 +16,7 @@ namespace AsyncEx.Coordination.UnitTests
             Assert.Equal(0, semaphore.CurrentCount);
             Task task = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace AsyncEx.Coordination.UnitTests
             Assert.True(task1.IsCompleted);
             Task task2 = semaphore.WaitAsync();
             Assert.Equal(0, semaphore.CurrentCount);
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace AsyncEx.Coordination.UnitTests
             CancellationToken token = new CancellationToken(true);
 
             Task task = semaphore.WaitAsync(token);
-            
+
             Assert.Equal(0, semaphore.CurrentCount);
             Assert.True(task.IsCompleted);
             Assert.False(task.IsCanceled);

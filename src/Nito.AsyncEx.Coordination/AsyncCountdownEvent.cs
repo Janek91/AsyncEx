@@ -122,7 +122,7 @@ namespace Nito.AsyncEx
                 {
                     _mre.Set();
                 }
-                else if ((oldCount < 0 && _count > 0) || (oldCount > 0 && _count < 0))
+                else if (oldCount < 0 && _count > 0 || oldCount > 0 && _count < 0)
                 {
                     _mre.Set();
                     _mre.Reset();

@@ -21,7 +21,7 @@ namespace AsyncEx.Oop.UnitTests
         {
             DeferralManager dm = new DeferralManager();
             IDisposable deferral = dm.DeferralSource.GetDeferral();
-            await AsyncAssert.NeverCompletesAsync(dm.WaitForDeferralsAsync());
+            await AsyncAssert.NeverCompletesAsync(dm.WaitForDeferralsAsync()).ConfigureAwait(false);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace AsyncEx.Oop.UnitTests
             IDisposable deferral2 = dm.DeferralSource.GetDeferral();
             Task task = dm.WaitForDeferralsAsync();
             deferral1.Dispose();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace AsyncEx.Oop.UnitTests
             Task task = dm.WaitForDeferralsAsync();
             deferral1.Dispose();
             deferral1.Dispose();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace AsyncEx.Oop.UnitTests
             dm.DeferralSource.GetDeferral().Dispose();
             IDisposable deferral = dm.DeferralSource.GetDeferral();
             Task task = dm.WaitForDeferralsAsync();
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
     }
 }

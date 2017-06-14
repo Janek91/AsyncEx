@@ -12,9 +12,9 @@ namespace AsyncEx.Context.UnitTests
         {
             int testThread = Thread.CurrentThread.ManagedThreadId;
             AsyncContextThread thread = new AsyncContextThread();
-            int contextThread = await thread.Factory.Run(() => Thread.CurrentThread.ManagedThreadId);
+            int contextThread = await thread.Factory.Run(() => Thread.CurrentThread.ManagedThreadId).ConfigureAwait(false);
             Assert.NotEqual(testThread, contextThread);
-            await thread.JoinAsync();
+            await thread.JoinAsync().ConfigureAwait(false);
         }
 
         [Fact]
@@ -27,17 +27,17 @@ namespace AsyncEx.Context.UnitTests
                 contextThread = Thread.CurrentThread.ManagedThreadId;
                 await Task.Yield();
                 resumeThread = Thread.CurrentThread.ManagedThreadId;
-            });
+            }).ConfigureAwait(false);
             Assert.Equal(contextThread, resumeThread);
-            await thread.JoinAsync();
+            await thread.JoinAsync().ConfigureAwait(false);
         }
 
         [Fact]
         public async Task Join_StopsTask()
         {
             AsyncContextThread context = new AsyncContextThread();
-            Thread thread = await context.Factory.Run(() => Thread.CurrentThread);
-            await context.JoinAsync();
+            Thread thread = await context.Factory.Run(() => Thread.CurrentThread).ConfigureAwait(false);
+            await context.JoinAsync().ConfigureAwait(false);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace AsyncEx.Context.UnitTests
         {
             using (AsyncContextThread thread = new AsyncContextThread())
             {
-                AsyncContext observedContext = await thread.Factory.Run(() => AsyncContext.Current);
+                AsyncContext observedContext = await thread.Factory.Run(() => AsyncContext.Current).ConfigureAwait(false);
                 Assert.Same(observedContext, thread.Context);
             }
         }

@@ -124,6 +124,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Releases the semaphore.
         /// </summary>
+        /// <param name="releaseCount">The release count.</param>
         public void Release(long releaseCount)
         {
             if (releaseCount == 0)

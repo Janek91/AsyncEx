@@ -18,7 +18,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitAndUnwrapException_Faulted_UnwrapsException()
         {
-            Task task = Task.Run(() => { throw new NotImplementedException(); });
+            Task task = Task.Run(() => throw new NotImplementedException());
             AsyncAssert.Throws<NotImplementedException>(() => task.WaitAndUnwrapException());
         }
 
@@ -33,7 +33,7 @@ namespace AsyncEx.Tasks.UnitTests
         public void WaitAndUnwrapExceptionWithCT_Faulted_UnwrapsException()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            Task task = Task.Run(() => { throw new NotImplementedException(); });
+            Task task = Task.Run(() => throw new NotImplementedException());
             AsyncAssert.Throws<NotImplementedException>(() => task.WaitAndUnwrapException(cts.Token));
         }
 
@@ -56,7 +56,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitAndUnwrapExceptionResult_Faulted_UnwrapsException()
         {
-            Task<int> task = Task.Run((Func<int>)(() => { throw new NotImplementedException(); }));
+            Task<int> task = Task.Run((Func<int>)(() => throw new NotImplementedException()));
             AsyncAssert.Throws<NotImplementedException>(() => task.WaitAndUnwrapException(), allowDerivedTypes: false);
         }
 
@@ -71,7 +71,7 @@ namespace AsyncEx.Tasks.UnitTests
         public void WaitAndUnwrapExceptionResultWithCT_Faulted_UnwrapsException()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            Task<int> task = Task.Run((Func<int>)(() => { throw new NotImplementedException(); }));
+            Task<int> task = Task.Run((Func<int>)(() => throw new NotImplementedException()));
             AsyncAssert.Throws<NotImplementedException>(() => task.WaitAndUnwrapException(cts.Token), allowDerivedTypes: false);
         }
 
@@ -99,7 +99,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitWithoutException_Faulted_DoesNotBlockOrThrow()
         {
-            Task task = Task.Run(() => { throw new NotImplementedException(); });
+            Task task = Task.Run(() => throw new NotImplementedException());
             task.WaitWithoutException();
         }
 
@@ -118,7 +118,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitWithoutExceptionResult_Faulted_DoesNotBlockOrThrow()
         {
-            Task<int> task = Task.Run((Func<int>)(() => { throw new NotImplementedException(); }));
+            Task<int> task = Task.Run((Func<int>)(() => throw new NotImplementedException()));
             task.WaitWithoutException();
         }
 
@@ -137,7 +137,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitWithoutExceptionWithCancellationToken_Faulted_DoesNotBlockOrThrow()
         {
-            Task task = Task.Run(() => { throw new NotImplementedException(); });
+            Task task = Task.Run(() => throw new NotImplementedException());
             task.WaitWithoutException(new CancellationToken());
         }
 
@@ -156,7 +156,7 @@ namespace AsyncEx.Tasks.UnitTests
         [Fact]
         public void WaitWithoutExceptionResultWithCancellationToken_Faulted_DoesNotBlockOrThrow()
         {
-            Task<int> task = Task.Run((Func<int>)(() => { throw new NotImplementedException(); }));
+            Task<int> task = Task.Run((Func<int>)(() => throw new NotImplementedException()));
             task.WaitWithoutException(new CancellationToken());
         }
 
@@ -178,7 +178,7 @@ namespace AsyncEx.Tasks.UnitTests
             bool result = task.Wait(500);
             Assert.False(result);
             cts.Cancel();
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(() => task).ConfigureAwait(false);
         }
     }
 }

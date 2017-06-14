@@ -28,6 +28,10 @@ namespace Nito.AsyncEx
         /// <summary>
         /// Asynchronously waits on the semaphore, and returns a disposable that releases the semaphore when disposed, thus treating this semaphore as a "multi-lock".
         /// </summary>
+        /// <param name="this">The this.</param>
+        /// <returns>
+        /// AwaitableDisposable&lt;IDisposable&gt;
+        /// </returns>
         public static AwaitableDisposable<IDisposable> LockAsync(this SemaphoreSlim @this) => @this.LockAsync(CancellationToken.None);
 
         /// <summary>

@@ -38,10 +38,7 @@ namespace AsyncEx.Coordination.UnitTests
             });
             await task1HasLock.Task;
 
-            Task task2 = Task.Run(async () =>
-            {
-                await mutex.LockAsync();
-            });
+            Task task2 = Task.Run(async () => await mutex.LockAsync());
 
             Assert.False(task2.IsCompleted);
             task1Continue.SetResult(null);
@@ -60,7 +57,7 @@ namespace AsyncEx.Coordination.UnitTests
                 IDisposable key = await mutex.LockAsync();
                 key.Dispose();
                 key.Dispose();
-            });
+            }).ConfigureAwait(false);
 
             Task task1 = Task.Run(async () =>
             {
@@ -72,10 +69,7 @@ namespace AsyncEx.Coordination.UnitTests
             });
             await task1HasLock.Task;
 
-            Task task2 = Task.Run(async () =>
-            {
-                await mutex.LockAsync();
-            });
+            Task task2 = Task.Run(async () => await mutex.LockAsync());
 
             Assert.False(task2.IsCompleted);
             task1Continue.SetResult(null);
@@ -114,10 +108,7 @@ namespace AsyncEx.Coordination.UnitTests
             });
             await task2Ready.Task;
 
-            Task task3 = Task.Run(async () =>
-            {
-                await mutex.LockAsync();
-            });
+            Task task3 = Task.Run(async () => await mutex.LockAsync());
 
             task1Continue.SetResult(null);
             await task2HasLock.Task;
@@ -171,7 +162,7 @@ namespace AsyncEx.Coordination.UnitTests
             });
             await taskReady.Task;
             cts.Cancel();
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.True(task.IsCanceled);
             unlock.Dispose();
 
@@ -189,7 +180,7 @@ namespace AsyncEx.Coordination.UnitTests
             Task<IDisposable> canceledLockTask = mutex.LockAsync(cts.Token).AsTask();
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(canceledLockTask);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(canceledLockTask).ConfigureAwait(false);
         }
 
         [Fact]
@@ -254,7 +245,7 @@ namespace AsyncEx.Coordination.UnitTests
                 task2.Wait();
                 cancellationTokenSource.Cancel();
                 task1.Wait();
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

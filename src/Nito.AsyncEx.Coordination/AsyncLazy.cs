@@ -79,11 +79,7 @@ namespace Nito.AsyncEx
         /// <param name="flags">Flags to influence async lazy semantics.</param>
         public AsyncLazy(Func<Task<T>> factory, AsyncLazyFlags flags = AsyncLazyFlags.None)
         {
-            if (factory == null)
-            {
-                throw new ArgumentNullException(nameof(factory));
-            }
-            _factory = factory;
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
             if ((flags & AsyncLazyFlags.RetryOnFailure) == AsyncLazyFlags.RetryOnFailure)
             {
                 _factory = RetryOnFailure(_factory);
@@ -167,8 +163,12 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;"/> to be await'ed.
+        /// Asynchronous infrastructure support. This method permits instances of <see cref="AsyncLazy&lt;T&gt;" /> to be await'ed.
         /// </summary>
+        /// <param name="continueOnCapturedContext">if set to <c>true</c> [continue on captured context].</param>
+        /// <returns>
+        /// ConfiguredTaskAwaitable&lt;T&gt;
+        /// </returns>
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public ConfiguredTaskAwaitable<T> ConfigureAwait(bool continueOnCapturedContext)
         {

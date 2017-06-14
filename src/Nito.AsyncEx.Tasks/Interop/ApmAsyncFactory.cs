@@ -55,12 +55,15 @@ namespace Nito.AsyncEx.Interop
         }
 
         /// <summary>
-        /// Wraps a <see cref="Task{TResult}"/> into the Begin method of an APM pattern.
+        /// Wraps a <see cref="Task{TResult}" /> into the Begin method of an APM pattern.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="task">The task to wrap. May not be <c>null</c>.</param>
         /// <param name="callback">The callback method passed into the Begin method of the APM pattern.</param>
         /// <param name="state">The state passed into the Begin method of the APM pattern.</param>
-        /// <returns>The asynchronous operation, to be returned by the Begin method of the APM pattern.</returns>
+        /// <returns>
+        /// The asynchronous operation, to be returned by the Begin method of the APM pattern.
+        /// </returns>
         public static IAsyncResult ToBegin<TResult>(Task<TResult> task, AsyncCallback callback, object state)
         {
             TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>(state, TaskCreationOptions.RunContinuationsAsynchronously);
@@ -90,10 +93,13 @@ namespace Nito.AsyncEx.Interop
         }
 
         /// <summary>
-        /// Wraps a <see cref="Task{TResult}"/> into the End method of an APM pattern.
+        /// Wraps a <see cref="Task{TResult}" /> into the End method of an APM pattern.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="asyncResult">The asynchronous operation returned by the matching Begin method of this APM pattern.</param>
-        /// <returns>The result of the asynchronous operation, to be returned by the End method of the APM pattern.</returns>
+        /// <returns>
+        /// The result of the asynchronous operation, to be returned by the End method of the APM pattern.
+        /// </returns>
         public static TResult ToEnd<TResult>(IAsyncResult asyncResult)
         {
             return ((Task<TResult>)asyncResult).WaitAndUnwrapException();

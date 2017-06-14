@@ -84,10 +84,7 @@ namespace AsyncEx.Context.UnitTests
         {
             AsyncContext observedContext = null;
             AsyncContext context = new AsyncContext();
-            context.Factory.Run(() =>
-            {
-                observedContext = AsyncContext.Current;
-            });
+            context.Factory.Run(() => observedContext = AsyncContext.Current);
 
             context.Execute();
 
@@ -99,10 +96,7 @@ namespace AsyncEx.Context.UnitTests
         {
             SynchronizationContext observedContext = null;
             AsyncContext context = new AsyncContext();
-            context.Factory.Run(() =>
-            {
-                observedContext = SynchronizationContext.Current;
-            });
+            context.Factory.Run(() => observedContext = SynchronizationContext.Current);
 
             context.Execute();
 
@@ -114,10 +108,7 @@ namespace AsyncEx.Context.UnitTests
         {
             TaskScheduler observedScheduler = null;
             AsyncContext context = new AsyncContext();
-            context.Factory.Run(() =>
-            {
-                observedScheduler = TaskScheduler.Current;
-            });
+            context.Factory.Run(() => observedScheduler = TaskScheduler.Current);
 
             context.Execute();
 
@@ -134,7 +125,7 @@ namespace AsyncEx.Context.UnitTests
         [Fact]
         public void Run_PropagatesException()
         {
-            Action test = () => AsyncContext.Run(() => { throw new NotImplementedException(); });
+            Action test = () => AsyncContext.Run(() => throw new NotImplementedException());
             AsyncAssert.Throws<NotImplementedException>(test, allowDerivedTypes: false);
         }
 
@@ -150,10 +141,7 @@ namespace AsyncEx.Context.UnitTests
         {
             Action test = () => AsyncContext.Run(async () =>
             {
-                SynchronizationContext.Current.Post(_ =>
-                {
-                    throw new NotImplementedException();
-                }, null);
+                SynchronizationContext.Current.Post(_ => throw new NotImplementedException(), null);
                 await Task.Yield();
             });
             AsyncAssert.Throws<NotImplementedException>(test, allowDerivedTypes: false);
@@ -164,9 +152,9 @@ namespace AsyncEx.Context.UnitTests
         {
             using (AsyncContextThread thread = new AsyncContextThread())
             {
-                SynchronizationContext synchronizationContext = await thread.Factory.Run(() => SynchronizationContext.Current);
+                SynchronizationContext synchronizationContext = await thread.Factory.Run(() => SynchronizationContext.Current).ConfigureAwait(false);
                 int value = 0;
-                synchronizationContext.Send(_ => { value = 13; }, null);
+                synchronizationContext.Send(_ => value = 13, null);
                 Assert.Equal(13, value);
             }
         }
@@ -179,9 +167,9 @@ namespace AsyncEx.Context.UnitTests
                 int value = 0;
                 await thread.Factory.Run(() =>
                 {
-                    SynchronizationContext.Current.Send(_ => { value = 13; }, null);
+                    SynchronizationContext.Current.Send(_ => value = 13, null);
                     Assert.Equal(13, value);
-                });
+                }).ConfigureAwait(false);
                 Assert.Equal(13, value);
             }
         }
@@ -191,12 +179,12 @@ namespace AsyncEx.Context.UnitTests
         {
             int value = 0;
             AsyncContext context = new AsyncContext();
-            context.Factory.Run(() => { value = 1; });
+            context.Factory.Run(() => value = 1);
             context.Execute();
 
-            Task task = context.Factory.Run(() => { value = 2; });
+            Task task = context.Factory.Run(() => value = 2);
 
-            task.ContinueWith(_ => { throw new Exception("Should not run"); }, TaskScheduler.Default);
+            task.ContinueWith(_ => throw new Exception("Should not run"), TaskScheduler.Default);
             Assert.Equal(1, value);
         }
 

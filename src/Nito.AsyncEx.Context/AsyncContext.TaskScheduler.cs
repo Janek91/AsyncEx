@@ -52,7 +52,7 @@ namespace Nito.AsyncEx
             /// <exception cref="T:System.InvalidOperationException">The <paramref name="task"/> was already executed.</exception>
             protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
             {
-                return (AsyncContext.Current == _context) && TryExecuteTask(task);
+                return AsyncContext.Current == _context && TryExecuteTask(task);
             }
 
             /// <summary>

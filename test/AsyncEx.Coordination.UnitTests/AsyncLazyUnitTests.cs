@@ -8,7 +8,6 @@ using Xunit;
 
 #pragma warning disable CS0162
 
-
 namespace AsyncEx.Coordination.UnitTests
 {
     public class AsyncLazyUnitTests
@@ -107,7 +106,7 @@ namespace AsyncEx.Coordination.UnitTests
             Assert.False(task1.IsCompleted);
             Assert.False(task2.IsCompleted);
             tcs.SetResult(null);
-            int[] results = await Task.WhenAll(task1, task2);
+            int[] results = await Task.WhenAll(task1, task2).ConfigureAwait(false);
             Assert.True(results.SequenceEqual(new[] { 13, 13 }));
             Assert.Equal(1, invokeCount);
         }
@@ -127,9 +126,9 @@ namespace AsyncEx.Coordination.UnitTests
                 return 13;
             };
             AsyncLazy<int> lazy = new AsyncLazy<int>(func);
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task);
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task).ConfigureAwait(false);
 
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task);
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task).ConfigureAwait(false);
             Assert.Equal(1, invokeCount);
         }
 
@@ -148,7 +147,7 @@ namespace AsyncEx.Coordination.UnitTests
                 return 13;
             };
             AsyncLazy<int> lazy = new AsyncLazy<int>(func, AsyncLazyFlags.RetryOnFailure);
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task);
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task).ConfigureAwait(false);
 
             Assert.Equal(13, await lazy);
             Assert.Equal(2, invokeCount);
@@ -169,7 +168,7 @@ namespace AsyncEx.Coordination.UnitTests
                 return 13;
             };
             AsyncLazy<int> lazy = new AsyncLazy<int>(func, AsyncLazyFlags.RetryOnFailure);
-            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task);
+            await AsyncAssert.ThrowsAsync<InvalidOperationException>(lazy.Task).ConfigureAwait(false);
 
             await lazy;
             await lazy;

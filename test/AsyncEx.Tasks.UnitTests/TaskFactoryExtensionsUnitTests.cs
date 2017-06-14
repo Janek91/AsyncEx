@@ -13,10 +13,7 @@ namespace AsyncEx.Tasks.UnitTests
             TaskFactory factory = new TaskFactory(scheduler);
             TaskScheduler result = null;
 
-            Task task = factory.Run(() =>
-            {
-                result = TaskScheduler.Current;
-            });
+            Task task = factory.Run(() => result = TaskScheduler.Current);
             await task;
 
             Assert.Same(scheduler, result);
@@ -35,12 +32,9 @@ namespace AsyncEx.Tasks.UnitTests
             {
                 Assert.Same(scheduler, TaskScheduler.Current);
                 Assert.Null(Task.Factory.Scheduler);
-                task = Task.Factory.Run(() =>
-                {
-                    result = TaskScheduler.Current;
-                });
+                task = Task.Factory.Run(() => result = TaskScheduler.Current);
                 await task;
-            }).Unwrap();
+            }).Unwrap().ConfigureAwait(false);
 
             Assert.Same(TaskScheduler.Default, result);
             Assert.True((task.CreationOptions & TaskCreationOptions.DenyChildAttach) == TaskCreationOptions.DenyChildAttach);
@@ -73,7 +67,7 @@ namespace AsyncEx.Tasks.UnitTests
                 Assert.Null(Task.Factory.Scheduler);
                 task = Task.Factory.Run(() => TaskScheduler.Current);
                 result = await task;
-            }).Unwrap();
+            }).Unwrap().ConfigureAwait(false);
 
             Assert.Same(TaskScheduler.Default, result);
             Assert.True((task.CreationOptions & TaskCreationOptions.DenyChildAttach) == TaskCreationOptions.DenyChildAttach);
@@ -116,8 +110,8 @@ namespace AsyncEx.Tasks.UnitTests
                     result = TaskScheduler.Current;
                     await Task.Yield();
                     resultAfterAwait = TaskScheduler.Current;
-                });
-            }).Unwrap();
+                }).ConfigureAwait(false);
+            }).Unwrap().ConfigureAwait(false);
 
             Assert.Same(TaskScheduler.Default, result);
             Assert.Same(TaskScheduler.Default, resultAfterAwait);
@@ -135,7 +129,7 @@ namespace AsyncEx.Tasks.UnitTests
                 result = TaskScheduler.Current;
                 await Task.Yield();
                 return TaskScheduler.Current;
-            });
+            }).ConfigureAwait(false);
 
             Assert.Same(scheduler, result);
             Assert.Same(scheduler, resultAfterAwait);
@@ -158,8 +152,8 @@ namespace AsyncEx.Tasks.UnitTests
                     result = TaskScheduler.Current;
                     await Task.Yield();
                     return TaskScheduler.Current;
-                });
-            }).Unwrap();
+                }).ConfigureAwait(false);
+            }).Unwrap().ConfigureAwait(false);
 
             Assert.Same(TaskScheduler.Default, result);
             Assert.Same(TaskScheduler.Default, resultAfterAwait);

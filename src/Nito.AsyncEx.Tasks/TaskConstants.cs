@@ -8,19 +8,10 @@ namespace Nito.AsyncEx
     /// </summary>
     public static class TaskConstants
     {
-        private static readonly Task<bool> booleanTrue = Task.FromResult(true);
-        private static readonly Task<int> intNegativeOne = Task.FromResult(-1);
-
         /// <summary>
         /// A task that has been completed with the value <c>true</c>.
         /// </summary>
-        public static Task<bool> BooleanTrue
-        {
-            get
-            {
-                return booleanTrue;
-            }
-        }
+        public static Task<bool> BooleanTrue { get; } = Task.FromResult(true);
 
         /// <summary>
         /// A task that has been completed with the value <c>false</c>.
@@ -47,13 +38,7 @@ namespace Nito.AsyncEx
         /// <summary>
         /// A task that has been completed with the value <c>-1</c>.
         /// </summary>
-        public static Task<int> Int32NegativeOne
-        {
-            get
-            {
-                return intNegativeOne;
-            }
-        }
+        public static Task<int> Int32NegativeOne { get; } = Task.FromResult(-1);
 
         /// <summary>
         /// A <see cref="Task"/> that has been completed.
@@ -84,29 +69,14 @@ namespace Nito.AsyncEx
     /// <typeparam name="T">The type of the task result.</typeparam>
     public static class TaskConstants<T>
     {
-        private static readonly Task<T> defaultValue = Task.FromResult(default(T));
-        private static readonly Task<T> canceled = Task.FromCanceled<T>(new CancellationToken(true));
-
         /// <summary>
         /// A task that has been completed with the default value of <typeparamref name="T"/>.
         /// </summary>
-        public static Task<T> Default
-        {
-            get
-            {
-                return defaultValue;
-            }
-        }
+        public static Task<T> Default { get; } = Task.FromResult(default(T));
 
         /// <summary>
         /// A task that has been canceled.
         /// </summary>
-        public static Task<T> Canceled
-        {
-            get
-            {
-                return canceled;
-            }
-        }
+        public static Task<T> Canceled { get; } = Task.FromCanceled<T>(new CancellationToken(true));
     }
 }

@@ -25,8 +25,9 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Restores the old <see cref="SynchronizationContext"/>.
+        /// Restores the old <see cref="SynchronizationContext" />.
         /// </summary>
+        /// <param name="context">The context for the disposal operation.</param>
         protected override void Dispose(object context)
         {
             SynchronizationContext.SetSynchronizationContext(_oldContext);
@@ -45,9 +46,13 @@ namespace Nito.AsyncEx
         }
 
         /// <summary>
-        /// Executes a synchronous or asynchronous delegate without the current <see cref="SynchronizationContext"/>. The current context is restored when this function synchronously returns.
+        /// Executes a synchronous or asynchronous delegate without the current <see cref="SynchronizationContext" />. The current context is restored when this function synchronously returns.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="action">The delegate to execute.</param>
+        /// <returns>
+        /// T
+        /// </returns>
         public static T NoContext<T>(Func<T> action)
         {
             using (new SynchronizationContextSwitcher(null))

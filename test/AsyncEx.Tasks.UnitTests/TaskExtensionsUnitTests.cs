@@ -39,7 +39,7 @@ namespace AsyncEx.Tasks.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.Equal(cts.Token, GetCancellationTokenFromTask(task));
         }
 
@@ -73,7 +73,7 @@ namespace AsyncEx.Tasks.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.Equal(cts.Token, GetCancellationTokenFromTask(task));
         }
 
@@ -112,7 +112,7 @@ namespace AsyncEx.Tasks.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.Equal(cts.Token, GetCancellationTokenFromTask(task));
         }
 
@@ -151,7 +151,7 @@ namespace AsyncEx.Tasks.UnitTests
 
             cts.Cancel();
 
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
             Assert.Equal(cts.Token, GetCancellationTokenFromTask(task));
         }
 

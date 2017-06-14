@@ -64,7 +64,7 @@ namespace Nito.AsyncEx
         }
 
         [DebuggerNonUserCode]
-        internal int GetReaderCountForDebugger { get { return (_locksHeld > 0 ? _locksHeld : 0); } }
+        internal int GetReaderCountForDebugger { get { return _locksHeld > 0 ? _locksHeld : 0; } }
 
         /// <summary>
         /// Creates a new async-compatible reader/writer lock.

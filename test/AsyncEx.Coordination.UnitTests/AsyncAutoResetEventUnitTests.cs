@@ -16,17 +16,17 @@ namespace AsyncEx.Coordination.UnitTests
 
             Task task = are.WaitAsync();
 
-            await AsyncAssert.NeverCompletesAsync(task);
+            await AsyncAssert.NeverCompletesAsync(task).ConfigureAwait(false);
         }
 
         [Fact]
         public void WaitAsync_AfterSet_CompletesSynchronously()
         {
             AsyncAutoResetEvent are = new AsyncAutoResetEvent();
-            
+
             are.Set();
             Task task = are.WaitAsync();
-            
+
             Assert.True(task.IsCompleted);
         }
 
@@ -36,7 +36,7 @@ namespace AsyncEx.Coordination.UnitTests
             AsyncAutoResetEvent are = new AsyncAutoResetEvent(true);
 
             Task task = are.WaitAsync();
-            
+
             Assert.True(task.IsCompleted);
         }
 
@@ -50,7 +50,7 @@ namespace AsyncEx.Coordination.UnitTests
             Task task2 = are.WaitAsync();
 
             Assert.True(task1.IsCompleted);
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace AsyncEx.Coordination.UnitTests
             Task task2 = are.WaitAsync();
 
             Assert.True(task1.IsCompleted);
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace AsyncEx.Coordination.UnitTests
             Task task2 = are.WaitAsync();
 
             Assert.True(task1.IsCompleted);
-            await AsyncAssert.NeverCompletesAsync(task2);
+            await AsyncAssert.NeverCompletesAsync(task2).ConfigureAwait(false);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace AsyncEx.Coordination.UnitTests
         {
             AsyncAutoResetEvent are = new AsyncAutoResetEvent(true);
             CancellationToken token = new CancellationToken(true);
-            
+
             Task task = are.WaitAsync(token);
 
             Assert.True(task.IsCompleted);
@@ -145,7 +145,7 @@ namespace AsyncEx.Coordination.UnitTests
             CancellationTokenSource cts = new CancellationTokenSource();
             cts.Cancel();
             Task task = are.WaitAsync(cts.Token);
-            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task);
+            await AsyncAssert.ThrowsAsync<OperationCanceledException>(task).ConfigureAwait(false);
         }
 
         [Fact]
